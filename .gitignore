@@ -1,0 +1,21 @@
+# ArchISO build output
+out/
+work/
+*.iso
+
+# Generated package lists or caches
+pkglist.*
+pacman.conf.backup
+
+# Logs
+*.log
+
+# Editor/OS cruft
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*.bak

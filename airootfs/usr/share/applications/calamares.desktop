@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install Anda OS
+GenericName=System Installer
+Comment=Install Anda OS to your computer
+Exec=sudo calamares
+Icon=system-software-install
+Terminal=false
+Categories=System;
