@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndaOS — Minimal Arch Linux Distribution</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+    <style>
+        :root {
+            --accent: #FFD93D;
+            --accent-dark: #E5C135;
+            --accent-red: #FF3B30;
+            --bg: #FEFEFE;
+            --text: #0A0A0A;
+            --text-secondary: #525252;
+            --border: #E8E8E8;
+            --surface: #FFFFFF;
+        }
+        [data-theme="dark"] {
+            --accent: #FFD93D;
+            --accent-dark: #FFC700;
+            --accent-red: #FF453A;
+            --bg: #0A0A0A;
+            --text: #FEFEFE;
+            --text-secondary: #A0A0A0;
+            --border: #2A2A2A;
+            --surface: #1A1A1A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(254, 254, 254, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        
+        [data-theme="dark"] nav {
+            background: rgba(10, 10, 10, 0.8);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+            padding: 4px;
+        }
+
+        .theme-toggle:hover {
+            color: var(--text);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 600;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            max-width: 800px;
+        }
+
+        .hero .subtitle {
+            font-size: 24px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            max-width: 640px;
+            line-height: 1.5;
+        }
+
+        .hero-note {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 48px;
+            max-width: 640px;
+        }
+
+        .hero-note strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--text);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 80px 0;
+        }
+
+        .stat {
+            background: var(--surface);
+            padding: 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Etymology Box */
+        .etymology-box {
+            background: var(--accent);
+            color: var(--text);
+            padding: 40px;
+            border-radius: 12px;
+            margin: 64px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .etymology-box::before {
+            content: '🥚';
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.1;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .etymology-box h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .etymology-box p {
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Section */
+        section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-header {
+            max-width: 720px;
+            margin-bottom: 56px;
+        }
+
+        h2 {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            padding: 32px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: var(--accent);
+            transition: height 0.3s;
+        }
+
+        .feature-card:hover::before {
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Lists */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 48px;
+        }
+
+        .list-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+        }
+
+        .list-section h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .list-section.negative h3 {
+            border-color: var(--accent-red);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            padding: 12px 0;
+            padding-left: 28px;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .list-section.negative li::before {
+            content: "×";
+            color: var(--accent-red);
+        }
+
+        /* Callout */
+        .callout {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 32px;
+            border-radius: 12px;
+            margin: 32px 0;
+        }
+
+        .callout strong {
+            font-weight: 600;
+        }
+
+        /* Download Section */
+        .download-section {
+            background: var(--text);
+            color: var(--bg);
+            border-radius: 16px;
+            padding: 64px;
+            text-align: center;
+            margin: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 32px 32px;
+            opacity: 0.3;
+        }
+
+        .download-section h2 {
+            color: var(--bg);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .download-section p {
+            color: rgba(254, 254, 254, 0.7);
+            font-size: 18px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        [data-theme="dark"] .download-section p {
+            color: rgba(10, 10, 10, 0.7);
+        }
+
+        .download-section .btn-primary {
+            font-size: 18px;
+            padding: 16px 40px;
+            position: relative;
+        }
+
+        /* System Requirements */
+        .requirements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 48px 0;
+        }
+
+        .requirement-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .requirement-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .requirement-card ul {
+            list-style: none;
+        }
+
+        .requirement-card li {
+            padding: 8px 0;
+            padding-left: 0;
+        }
+
+        .requirement-card li::before {
+            content: none;
+        }
+
+        .req-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Installation Steps */
+        .install-steps {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .install-step {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .step-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--text);
+            color: #E8E8E8;
+            padding: 32px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        pre {
+            font-family: "SF Mono", "Monaco", "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        code {
+            color: var(--accent);
+        }
+
+        /* Docs Grid */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+
+        .doc-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+        }
+
+        .doc-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .doc-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .doc-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .doc-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .doc-link {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 64px 0;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        footer p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 72px;
+                left: 0;
+                right: 0;
+                background: var(--surface);
+                flex-direction: column;
+                padding: 24px;
+                gap: 20px;
+                border-bottom: 1px solid var(--border);
+                transform: translateY(-100%);
+                opacity: 0;
+                transition: all 0.3s;
+                pointer-events: none;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            .hero .subtitle {
+                font-size: 20px;
+            }
+
+            h2 {
+                font-size: 36px;
+            }
+
+            .download-section {
+                padding: 48px 32px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .install-step {
+                grid-template-columns: 1fr;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">AndaOS</a>
+            <div class="nav-right">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#philosophy">Philosophy</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#download">Download</a></li>
+                    <li><a href="#docs">Docs</a></li>
+                    <li><a href="https://github.com/hello2himel/andaos">GitHub</a></li>
+                </ul>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                    <i class="ri-sun-line" id="theme-icon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Toggle menu">
+                    <i class="ri-menu-line" id="menu-icon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="hero">
+                <h1>Minimal by design.<br>Powerful by nature.</h1>
+                <p class="subtitle">A clean, transparent Arch-based distribution with XFCE. Zero bloat. Full control. Ready to use in minutes, not weeks.</p>
+                <p class="hero-note"><strong>Anda</strong> means egg in Bengali—also used to describe something delightfully stupid. This OS? Stupid simple. Stupid fast. Just stupid enough to be brilliant.</p>
+                <div class="cta-group">
+                    <a href="#download" class="btn btn-primary">Download AndaOS</a>
+                    <a href="https://github.com/hello2himel/andaos" class="btn btn-secondary">View on GitHub</a>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">~1.5 GB</div>
+                    <div class="stat-label">ISO Size</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">&lt;20s</div>
+                    <div class="stat-label">Boot Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">&lt;500 MB</div>
+                    <div class="stat-label">RAM Usage</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">Zero</div>
+                    <div class="stat-label">Telemetry</div>
+                </div>
+            </div>
+
+            <div class="etymology-box">
+                <h3>🥚 Why "AndaOS"?</h3>
+                <p>In Bengali, <strong>anda</strong> literally means egg, but colloquially? It's how you call someone charmingly stupid. We embrace the simplicity. Keep it simple, keep it stupid—that's the whole philosophy right there.</p>
+            </div>
+        </div>
+
+        <section id="philosophy">
+            <div class="container">
+                <div class="section-header">
+                    <h2>The KISS Principle</h2>
+                    <p class="section-subtitle">Every component must answer: "Why is this here?" If not essential—removed. If optional—made optional. If configurable—made transparent.</p>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-number">01</span>
+                        <h3>Instant Productivity</h3>
+                        <p>XFCE desktop pre-configured with sensible defaults. Boot and start working immediately. No week-long configuration marathons.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-number">02</span>
+                        <h3>Fully Auditable</h3>
+                        <p>Every package, every config file is documented and justified. No mysteries. No telemetry. You know exactly what's running.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-number">03</span>
+                        <h3>Arch Compatible</h3>
+                        <p>Uses official Arch repositories. Full access to AUR and comprehensive Arch documentation. The best of both worlds.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-number">04</span>
+                        <h3>Zero Bloat</h3>
+                        <p>Only essential packages. No hidden services, no unnecessary daemons. Fast boot, low memory footprint, responsive desktop.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-number">05</span>
+                        <h3>User Control</h3>
+                        <p>No forced updates, no vendor lock-in, no corporate decisions. You own your system completely and make all the choices.</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-number">06</span>
+                        <h3>Reproducible</h3>
+                        <p>Build identical ISOs from source using standard ArchISO tooling. Transparent, auditable, and completely open.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2>What's included</h2>
+                    <p class="section-subtitle">Everything you need. Nothing you don't.</p>
+                </div>
+
+                <div class="two-col">
+                    <div class="list-section">
+                        <h3>In the box</h3>
+                        <ul>
+                            <li>XFCE 4 desktop environment</li>
+                            <li>Firefox with privacy-focused defaults</li>
+                            <li>PipeWire for modern audio routing</li>
+                            <li>NetworkManager with CLI and applet</li>
+                            <li>Essential tools: nano, vim, git, htop</li>
+                            <li>Full hardware support firmware</li>
+                            <li>Bluetooth stack with GUI controls</li>
+                            <li>Complete archive support (zip, tar, 7z)</li>
+                        </ul>
+                    </div>
+
+                    <div class="list-section negative">
+                        <h3>Not included</h3>
+                        <ul>
+                            <li>Office suites (install LibreOffice if needed)</li>
+                            <li>Development environments (add your stack)</li>
+                            <li>Gaming platforms (Steam/Lutris available)</li>
+                            <li>Bloatware and telemetry</li>
+                            <li>Unnecessary background services</li>
+                            <li>Hand-holding abstractions</li>
+                            <li>Mystery processes consuming RAM</li>
+                            <li>Software you'll never use</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>Philosophy:</strong> AndaOS gives you a foundation. You add what <em>you</em> need. Your machine, your rules, your choices.
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="download-section" id="download">
+                <h2>Download AndaOS</h2>
+                <p>Rolling release based on Arch Linux · Always up to date</p>
+                <a href="https://github.com/hello2himel/andaos/releases" class="btn btn-primary">Get the latest release</a>
+            </div>
+        </div>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>System Requirements</h2>
+                    <p class="section-subtitle">Runs on pretty much anything with a 64-bit processor.</p>
+                </div>
+
+                <div class="requirements">
+                    <div class="requirement-card">
+                        <h3>Minimum</h3>
+                        <ul>
+                            <li><span class="req-label">CPU:</span> x86_64 processor</li>
+                            <li><span class="req-label">RAM:</span> 2 GB</li>
+                            <li><span class="req-label">Storage:</span> 10 GB</li>
+                            <li><span class="req-label">Firmware:</span> BIOS or UEFI</li>
+                        </ul>
+                    </div>
+                    <div class="requirement-card">
+                        <h3>Recommended</h3>
+                        <ul>
+                            <li><span class="req-label">CPU:</span> Dual-core or better</li>
+                            <li><span class="req-label">RAM:</span> 4 GB+</li>
+                            <li><span class="req-label">Storage:</span> 20 GB SSD</li>
+                            <li><span class="req-label">Firmware:</span> UEFI (Secure Boot off)</li>
+                        </ul>
+                    </div>
+                    <div class="requirement-card">
+                        <h3>Tested Hardware</h3>
+                        <ul>
+                            <li>✓ Intel/AMD CPUs</li>
+                            <li>✓ Intel integrated graphics</li>
+                            <li>✓ AMD Radeon graphics</li>
+                            <li>✓ NVIDIA (nouveau + proprietary)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="docs">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Getting Started</h2>
+                    <p class="section-subtitle">Three simple steps to your new operating system.</p>
+                </div>
+
+                <div class="install-steps">
+                    <div class="install-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Write ISO to USB</h3>
+                            <p>Download the ISO and write it to a USB drive. Use dd on Linux/macOS, or Rufus/balenaEtcher on Windows.</p>
+                            <div class="code-block">
+<pre><code># Linux/macOS
+sudo dd bs=4M if=andaos-*.iso of=/dev/sdX status=progress oflag=sync
+
+# Verify integrity
+sha256sum -c SHA256SUMS</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="install-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Boot from USB</h3>
+                            <p>Restart your computer and boot from the USB drive. Disable Secure Boot if enabled. The system auto-boots to a live XFCE desktop—no password required.</p>
+                        </div>
+                    </div>
+
+                    <div class="install-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Install to Disk</h3>
+                            <p>Follow the Arch installation guide or use manual partitioning. AndaOS is 100% compatible with standard Arch installation procedures.</p>
+                            <div class="code-block">
+<pre><code># Partition, format, mount
+cfdisk /dev/sda
+mkfs.ext4 /dev/sda1
+mount /dev/sda1 /mnt
+
+# Install base system
+pacstrap /mnt base linux xfce4 networkmanager
+genfstab -U /mnt >> /mnt/etc/fstab</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header" style="margin-top: 80px;">
+                    <h2>Documentation</h2>
+                    <p class="section-subtitle">Everything you need to know, from installation to customization.</p>
+                </div>
+
+                <div class="docs-grid">
+                    <a href="https://wiki.archlinux.org/title/Installation_guide" class="doc-card">
+                        <div class="doc-icon">📖</div>
+                        <h3>Installation Guide</h3>
+                        <p>Complete step-by-step installation instructions following Arch standards.</p>
+                        <span class="doc-link">Read the guide →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos#building-from-source" class="doc-card">
+                        <div class="doc-icon">🔨</div>
+                        <h3>Build from Source</h3>
+                        <p>Create your own custom ISO with your preferred packages and configuration.</p>
+                        <span class="doc-link">Build guide →</span>
+                    </a>
+
+                    <a href="https://wiki.archlinux.org" class="doc-card">
+                        <div class="doc-icon">🌐</div>
+                        <h3>Arch Wiki</h3>
+                        <p>The most comprehensive Linux documentation on the internet. Your best friend.</p>
+                        <span class="doc-link">Browse wiki →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos" class="doc-card">
+                        <div class="doc-icon">💻</div>
+                        <h3>GitHub Repository</h3>
+                        <p>Source code, issue tracker, and contribution guidelines. Everything is open.</p>
+                        <span class="doc-link">View source →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos/issues" class="doc-card">
+                        <div class="doc-icon">🐛</div>
+                        <h3>Report Issues</h3>
+                        <p>Found a bug? Have a feature request? Let us know and help improve AndaOS.</p>
+                        <span class="doc-link">Open issue →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos#customization" class="doc-card">
+                        <div class="doc-icon">🎨</div>
+                        <h3>Customization</h3>
+                        <p>Learn how to modify branding, packages, and desktop settings to make it yours.</p>
+                        <span class="doc-link">Customize →</span>
+                    </a>
+                </div>
+
+                <div class="section-header" style="margin-top: 80px;">
+                    <h2>Build Your Own</h2>
+                    <p class="section-subtitle">Fork it, customize it, make it yours. That's the whole point.</p>
+                </div>
+
+                <div class="code-block">
+<pre><code># Prerequisites on Arch Linux
+sudo pacman -S archiso git base-devel
+
+# Clone the repository
+git clone https://github.com/hello2himel/andaos.git
+cd andaos
+
+# Build ISO (automated script)
+./build.sh
+
+# Or manual build
+sudo mkarchiso -v -w work -o out .
+
+# Test in QEMU before deploying
+qemu-system-x86_64 -enable-kvm -m 4096 -boot d -cdrom out/andaos-*.iso</code></pre>
+                </div>
+
+                <div class="callout">
+                    <strong>Pro tip:</strong> Edit <code>packages.x86_64</code> to add your favorite software, modify <code>airootfs/etc/skel/</code> for custom configs, and change <code>airootfs/etc/os-release</code> for your own branding. It's your system—make it reflect that.
+                </div>
+            </div>
+        </section>
+
+        <section style="background: var(--bg); padding: 80px 0;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Who is this for?</h2>
+                    <p class="section-subtitle">AndaOS isn't for everyone. And that's perfectly fine.</p>
+                </div>
+
+                <div class="two-col">
+                    <div class="list-section">
+                        <h3>Perfect for</h3>
+                        <ul>
+                            <li>Arch enthusiasts who want pre-configured convenience</li>
+                            <li>Developers who need a distraction-free workspace</li>
+                            <li>System administrators deploying consistent environments</li>
+                            <li>Students learning Linux fundamentals</li>
+                            <li>Privacy-conscious users wanting transparency</li>
+                            <li>Tinkerers who enjoy understanding their system</li>
+                            <li>Anyone who values simplicity over hand-holding</li>
+                        </ul>
+                    </div>
+
+                    <div class="list-section negative">
+                        <h3>Not recommended for</h3>
+                        <ul>
+                            <li>Users expecting Ubuntu-style guidance</li>
+                            <li>Those who want every package pre-installed</li>
+                            <li>Anyone uncomfortable with the terminal</li>
+                            <li>People who need commercial support</li>
+                            <li>Users wanting bleeding-edge experimental features</li>
+                            <li>Those who prefer point-and-click for everything</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container">
+                <div class="section-header">
+                    <h2>Community</h2>
+                    <p class="section-subtitle">Built by users, for users. Join us in keeping things stupid simple.</p>
+                </div>
+
+                <div class="docs-grid">
+                    <a href="https://github.com/hello2himel/andaos/discussions" class="doc-card">
+                        <div class="doc-icon">💬</div>
+                        <h3>Discussions</h3>
+                        <p>Ask questions, share tips, and connect with other AndaOS users.</p>
+                        <span class="doc-link">Join discussion →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos/blob/main/CONTRIBUTING.md" class="doc-card">
+                        <div class="doc-icon">🤝</div>
+                        <h3>Contributing</h3>
+                        <p>Help improve AndaOS. Every contribution matters, from docs to code.</p>
+                        <span class="doc-link">Start contributing →</span>
+                    </a>
+
+                    <a href="https://github.com/hello2himel/andaos/releases" class="doc-card">
+                        <div class="doc-icon">📦</div>
+                        <h3>Releases</h3>
+                        <p>Stay updated with the latest versions and release notes.</p>
+                        <span class="doc-link">View releases →</span>
+                    </a>
+                </div>
+
+                <div class="callout" style="margin-top: 48px;">
+                    <strong>Contribution guidelines:</strong> We follow the KISS principle for contributions too. Justify new packages, document your changes, test thoroughly, and keep it simple. Pull requests that add unnecessary complexity will be politely declined.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Made with ❤️ by the AndaOS community</p>
+            <p style="font-style: italic; margin-bottom: 16px;">Keep it simple. Keep it stupid.</p>
+            <p>Licensed under MIT · Not affiliated with <a href="https://archlinux.org">Arch Linux</a></p>
+            <p style="margin-top: 16px; font-size: 13px;">AndaOS is an independent, community-maintained distribution</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            const root = document.documentElement;
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            root.setAttribute('data-theme', isDark ? '' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            document.getElementById('theme-icon').classList.toggle('ri-sun-line');
+            document.getElementById('theme-icon').classList.toggle('ri-moon-line');
+        }
+
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const menuIcon = document.getElementById('menu-icon');
+            navLinks.classList.toggle('active');
+            menuIcon.classList.toggle('ri-menu-line');
+            menuIcon.classList.toggle('ri-close-line');
+        }
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+                document.getElementById('menu-icon').classList.add('ri-menu-line');
+                document.getElementById('menu-icon').classList.remove('ri-close-line');
+            });
+        });
+
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-icon').classList.replace('ri-sun-line', 'ri-moon-line');
+        }
+    </script>
+</body>
+</html>
