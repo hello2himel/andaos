@@ -1,1188 +1,1341 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AndaOS — Minimal Arch Linux Distribution</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
-    <style>
-        :root {
-            --accent: #FFD93D;
-            --accent-dark: #E5C135;
-            --accent-red: #FF3B30;
-            --bg: #FEFEFE;
-            --text: #0A0A0A;
-            --text-secondary: #525252;
-            --border: #E8E8E8;
-            --surface: #FFFFFF;
-        }
-        [data-theme="dark"] {
-            --accent: #FFD93D;
-            --accent-dark: #FFC700;
-            --accent-red: #FF453A;
-            --bg: #0A0A0A;
-            --text: #FEFEFE;
-            --text-secondary: #A0A0A0;
-            --border: #2A2A2A;
-            --surface: #1A1A1A;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-            line-height: 1.7;
-            color: var(--text);
-            background: var(--bg);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .container {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Navigation */
-        nav {
-            position: sticky;
-            top: 0;
-            background: rgba(254, 254, 254, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-            transition: background 0.3s;
-        }
-        
-        [data-theme="dark"] nav {
-            background: rgba(10, 10, 10, 0.8);
-        }
-
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 72px;
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: -0.5px;
-            color: var(--text);
-            text-decoration: none;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 32px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text);
-        }
-
-        .theme-toggle {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            color: var(--text-secondary);
-            transition: color 0.2s;
-            padding: 4px;
-        }
-
-        .theme-toggle:hover {
-            color: var(--text);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: transparent;
-            border: none;
-            font-size: 24px;
-            color: var(--text);
-            cursor: pointer;
-        }
-
-        /* Hero */
-        .hero {
-            padding: 120px 0 80px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.4;
-            z-index: -1;
-        }
-
-        .hero h1 {
-            font-size: 72px;
-            font-weight: 600;
-            letter-spacing: -2px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            max-width: 800px;
-        }
-
-        .hero .subtitle {
-            font-size: 24px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            max-width: 640px;
-            line-height: 1.5;
-        }
-
-        .hero-note {
-            font-size: 16px;
-            color: var(--text-secondary);
-            font-style: italic;
-            margin-bottom: 48px;
-            max-width: 640px;
-        }
-
-        .hero-note strong {
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .cta-group {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--text);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text);
-            border: 1.5px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--text);
-        }
-
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1px;
-            background: var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 80px 0;
-        }
-
-        .stat {
-            background: var(--surface);
-            padding: 32px;
-            text-align: center;
-            position: relative;
-        }
-
-        .stat::before {
-            content: '';
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 600;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Etymology Box */
-        .etymology-box {
-            background: var(--accent);
-            color: var(--text);
-            padding: 40px;
-            border-radius: 12px;
-            margin: 64px 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .etymology-box::before {
-            content: '🥚';
-            position: absolute;
-            font-size: 120px;
-            opacity: 0.1;
-            right: -20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .etymology-box h3 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .etymology-box p {
-            font-size: 18px;
-            line-height: 1.6;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* Section */
-        section {
-            padding: 80px 0;
-            border-top: 1px solid var(--border);
-        }
-
-        .section-header {
-            max-width: 720px;
-            margin-bottom: 56px;
-        }
-
-        h2 {
-            font-size: 48px;
-            font-weight: 600;
-            letter-spacing: -1px;
-            margin-bottom: 16px;
-        }
-
-        .section-subtitle {
-            font-size: 20px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        /* Feature Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-        }
-
-        .feature-card {
-            padding: 32px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 0;
-            background: var(--accent);
-            transition: height 0.3s;
-        }
-
-        .feature-card:hover::before {
-            height: 100%;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-        }
-
-        .feature-number {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 32px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .feature-card h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        /* Lists */
-        .two-col {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-            gap: 48px;
-        }
-
-        .list-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 40px;
-        }
-
-        .list-section h3 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .list-section.negative h3 {
-            border-color: var(--accent-red);
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        li {
-            padding: 12px 0;
-            padding-left: 28px;
-            position: relative;
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.6;
-        }
-
-        li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .list-section.negative li::before {
-            content: "×";
-            color: var(--accent-red);
-        }
-
-        /* Callout */
-        .callout {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent);
-            padding: 32px;
-            border-radius: 12px;
-            margin: 32px 0;
-        }
-
-        .callout strong {
-            font-weight: 600;
-        }
-
-        /* Download Section */
-        .download-section {
-            background: var(--text);
-            color: var(--bg);
-            border-radius: 16px;
-            padding: 64px;
-            text-align: center;
-            margin: 80px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .download-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 32px 32px;
-            opacity: 0.3;
-        }
-
-        .download-section h2 {
-            color: var(--bg);
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .download-section p {
-            color: rgba(254, 254, 254, 0.7);
-            font-size: 18px;
-            margin-bottom: 32px;
-            position: relative;
-        }
-
-        [data-theme="dark"] .download-section p {
-            color: rgba(10, 10, 10, 0.7);
-        }
-
-        .download-section .btn-primary {
-            font-size: 18px;
-            padding: 16px 40px;
-            position: relative;
-        }
-
-        /* System Requirements */
-        .requirements {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin: 48px 0;
-        }
-
-        .requirement-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 32px;
-        }
-
-        .requirement-card h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .requirement-card ul {
-            list-style: none;
-        }
-
-        .requirement-card li {
-            padding: 8px 0;
-            padding-left: 0;
-        }
-
-        .requirement-card li::before {
-            content: none;
-        }
-
-        .req-label {
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        /* Installation Steps */
-        .install-steps {
-            display: grid;
-            gap: 24px;
-            margin-bottom: 48px;
-        }
-
-        .install-step {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 32px;
-            display: grid;
-            grid-template-columns: 60px 1fr;
-            gap: 24px;
-            align-items: start;
-        }
-
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: var(--accent);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .step-content h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .step-content p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-
-        /* Code Block */
-        .code-block {
-            background: var(--text);
-            color: #E8E8E8;
-            padding: 32px;
-            border-radius: 12px;
-            overflow-x: auto;
-            margin: 24px 0;
-            position: relative;
-        }
-
-        .code-block::before {
-            content: '';
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--accent);
-        }
-
-        pre {
-            font-family: "SF Mono", "Monaco", "Courier New", monospace;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-
-        code {
-            color: var(--accent);
-        }
-
-        /* Docs Grid */
-        .docs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px;
-            margin-bottom: 64px;
-        }
-
-        .doc-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 32px;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: var(--text);
-            display: block;
-        }
-
-        .doc-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-        }
-
-        .doc-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--accent);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .doc-card h3 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .doc-card p {
-            color: var(--text-secondary);
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .doc-link {
-            color: var(--text);
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 64px 0;
-            text-align: center;
-            color: var(--text-secondary);
-        }
-
-        footer p {
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        footer a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        footer a:hover {
-            color: var(--accent);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                position: fixed;
-                top: 72px;
-                left: 0;
-                right: 0;
-                background: var(--surface);
-                flex-direction: column;
-                padding: 24px;
-                gap: 20px;
-                border-bottom: 1px solid var(--border);
-                transform: translateY(-100%);
-                opacity: 0;
-                transition: all 0.3s;
-                pointer-events: none;
-            }
-
-            .nav-links.active {
-                transform: translateY(0);
-                opacity: 1;
-                pointer-events: all;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .hero h1 {
-                font-size: 48px;
-            }
-
-            .hero .subtitle {
-                font-size: 20px;
-            }
-
-            h2 {
-                font-size: 36px;
-            }
-
-            .download-section {
-                padding: 48px 32px;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .install-step {
-                grid-template-columns: 1fr;
-            }
-
-            .two-col {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AndaOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Light mode — omelette palette */
+  --ink:        #3b2507;   /* Char — warm deep brown for text */
+  --paper:      #f5ede0;   /* Egg White — warm off-white bg */
+  --yolk:       #e8a830;   /* Golden Fold — amber accent */
+  --yolk-bright:#f5c842;   /* full Yolk — for dark surface accents */
+  --butter:     #d4890a;   /* Butter — darker amber for borders/emphasis */
+  --muted:      #8a6a3a;   /* warm mid-brown, readable on Egg White */
+  --rule:       #e0c89a;   /* warm tan divider */
+  --surface:    #eee3cc;   /* slightly deeper Egg White for surfaces */
+  --red:        #b83225;
+
+  /* Code always dark — Char tones */
+  --code-bg:      #2a1c0e;
+  --code-fg:      #f5ede0;
+  --code-comment: #8a6a3a;
+  --code-border:  #3e2a10;
+}
+
+/* Dark: Char bg + Egg White text + Yolk accent */
+[data-theme="dark"] {
+  --ink:        #f5ede0;   /* Egg White */
+  --paper:      #1e1a14;   /* deep Char bg */
+  --yolk:       #f5c842;   /* full Yolk — pops on dark */
+  --yolk-bright:#f5c842;
+  --butter:     #e8a830;   /* Golden Fold as border accent */
+  --muted:      #a89880;   /* warm tan, ~4.6:1 on dark ✓ */
+  --rule:       #3b2e1e;   /* Char-toned divider */
+  --surface:    #261f16;   /* lifted Char */
+  --red:        #e06050;
+
+  --code-bg:      #110e0a;
+  --code-fg:      #f5ede0;
+  --code-comment: #7a6a58;
+  --code-border:  #2a2018;
+}
+
+/* ── YOLK HOVER: always black text on yellow ── */
+.principle:hover,
+.doc:hover {
+  background: var(--yolk) !important;
+  color: #1e1a14 !important;
+}
+.principle:hover *,
+.doc:hover * {
+  color: #1e1a14 !important;
+}
+
+.theme-btn {
+  background: none;
+  border: 1.5px solid var(--rule);
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 8px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: all 0.15s;
+}
+
+.theme-btn:hover {
+  border-color: var(--yolk);
+  color: var(--yolk);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 56px;
+  gap: 16px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover { color: var(--ink); }
+
+.nav-dl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 20px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-dl:hover { background: var(--yolk); color: var(--ink); }
+
+/* ─── HERO ─── */
+.hero {
+  padding: 160px 40px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 2px solid var(--ink);
+  min-height: 100vh;
+  align-items: end;
+}
+
+.hero-left {
+  padding-right: 60px;
+  border-right: 2px solid var(--ink);
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.hero-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-tag i { font-size: 14px; }
+
+.hero-h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(72px, 10vw, 128px);
+  line-height: 1;
+  letter-spacing: 1px;
+  margin-bottom: 32px;
+}
+
+.hero-h1 .line {
+  display: block;
+  line-height: 1.05;
+}
+
+.hero-h1 .line-accent {
+  display: block;
+  line-height: 1.05;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 0 10px;
+  margin-left: -4px;
+  width: fit-content;
+}
+
+.hero-desc {
+  font-size: 18px;
+  color: var(--muted);
+  max-width: 420px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-main {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 14px 32px;
+  text-decoration: none;
+  border: 2px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s;
+}
+
+.btn-main:hover { background: var(--yolk); color: var(--ink); border-color: var(--yolk); }
+
+.btn-ghost {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
+
+.hero-right {
+  padding-left: 60px;
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 40px;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+}
+
+.stat {
+  background: var(--surface);
+  padding: 24px;
+}
+
+.stat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.stat-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+}
+
+.hero-anda {
+  border-left: 4px solid var(--yolk);
+  padding-left: 20px;
+}
+
+.hero-anda p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.hero-anda strong { color: var(--ink); font-style: normal; }
+
+/* ─── SECTIONS ─── */
+section { border-bottom: 2px solid var(--ink); }
+
+.section-inner {
+  padding: 80px 40px;
+}
+
+.section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.section-h {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 0.95;
+  letter-spacing: -1px;
+  max-width: 800px;
+  margin-bottom: 48px;
+}
+
+/* ─── PHILOSOPHY ─── */
+.principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--rule);
+  border-right: none;
+  border-bottom: none;
+}
+
+.principle {
+  padding: 40px;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  transition: background 0.2s, color 0.2s;
+  cursor: default;
+}
+
+.p-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--rule);
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+
+.p-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.p-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ─── WHAT'S IN / OUT ─── */
+.inout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.inout-col {
+  padding: 48px 40px;
+}
+
+.inout-col:first-child {
+  border-right: 1px solid var(--rule);
+}
+
+.inout-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.inout-col.out .inout-title { border-color: var(--red); }
+
+.inout-list { list-style: none; }
+
+.inout-list li {
+  padding: 12px 0;
+  font-size: 15px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+}
+
+.inout-list li:last-child { border-bottom: none; }
+
+.inout-list li .li-icon {
+  font-size: 14px;
+  color: var(--ink);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.inout-col.out .inout-list li .li-icon {
+  color: var(--red);
+}
+
+/* ─── REQUIREMENTS ─── */
+.reqs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 2px solid var(--ink);
+}
+
+.req {
+  padding: 40px;
+  border-right: 2px solid var(--ink);
+}
+
+.req:last-child { border-right: none; }
+
+.req-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.req-list { list-style: none; }
+
+.req-list li {
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  gap: 8px;
+}
+
+.req-list li:last-child { border-bottom: none; }
+
+.req-list strong {
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  min-width: 60px;
+}
+
+/* ─── INSTALL ─── */
+.install-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-right: none;
+  border-bottom: none;
+}
+
+.install-step {
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+}
+
+.install-step-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.install-step-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.install-step-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--yolk);
+  color: #1e1a14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.install-step-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.install-step-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.install-step-body {
+  padding: 28px 32px;
+  flex: 1;
+}
+
+.install-step-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+/* step that spans full width */
+.install-step.full {
+  grid-column: 1 / -1;
+}
+
+.install-note {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-left: 3px solid var(--yolk);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.install-note code { color: var(--ink); font-size: 11px; }
+
+.code-wrap {
+  position: relative;
+  margin: 20px 0;
+}
+
+.code {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid var(--code-border);
+  padding: 24px 28px;
+  padding-top: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-bottom: 1px solid var(--code-border);
+}
+
+.code-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--code-border);
+}
+
+.copy-btn {
+  font-size: 14px;
+  color: var(--code-comment);
+  background: none;
+  border: 1px solid var(--code-border);
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.copy-btn:hover {
+  color: #f5c842;
+  border-color: #f5c842;
+}
+
+.copy-btn.copied {
+  color: #5cb85c;
+  border-color: #5cb85c;
+}
+
+.code-comment { color: var(--code-comment); }
+.code-cmd { color: #f5c842; }
+
+/* ─── DOWNLOAD ─── */
+.download {
+  background: #1e1a14;
+  color: #f5ede0;
+  padding: 100px 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 40px;
+  border-bottom: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
+}
+
+.dl-left h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 7vw, 96px);
+  line-height: 0.95;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  color: #f5ede0;
+}
+
+.dl-left h2 span { color: #f5c842; }
+
+.dl-left p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: #a89880;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-dl {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: #f5c842;
+  color: #1e1a14;
+  padding: 18px 48px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.15s;
+  font-weight: 600;
+}
+
+.btn-dl:hover { background: #e8a830; transform: translateY(-1px); }
+
+/* ─── DOCS ─── */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 2px solid var(--ink);
+}
+
+.doc {
+  padding: 36px 32px;
+  border-right: 2px solid var(--ink);
+  text-decoration: none;
+  color: var(--ink);
+  display: block;
+  transition: background 0.15s;
+  border-bottom: 2px solid var(--ink);
+}
+
+.doc:nth-child(3n) { border-right: none; }
+.doc:nth-last-child(-n+3) { border-bottom: none; }
+
+.doc:hover { background: var(--yolk); }
+
+.doc-title {
+  font-weight: 500;
+  font-size: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-title i { font-size: 16px; color: var(--yolk); flex-shrink: 0; }
+.doc:hover .doc-title i { color: var(--ink); }
+
+.doc-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.doc:hover .doc-desc { color: var(--ink); }
+
+.doc-arrow {
+  font-size: 16px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  transition: color 0.15s;
+}
+
+.doc:hover .doc-arrow { color: var(--ink); }
+
+/* ─── FOR WHO ─── */
+.forwhom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.fw-col {
+  padding: 48px 40px;
+}
+
+.fw-col:first-child { border-right: 1px solid var(--rule); }
+
+.fw-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+  margin-bottom: 32px;
+}
+
+.fw-col.bad .fw-title { color: var(--red); }
+
+.fw-list { list-style: none; }
+
+.fw-list li {
+  padding: 10px 0;
+  font-size: 15px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.fw-list li:last-child { border-bottom: none; }
+
+.fw-list li .li-icon {
+  font-size: 14px;
+  color: var(--rule);
+  flex-shrink: 0;
+}
+
+.fw-col.bad .fw-list li .li-icon {
+  color: var(--red);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 48px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-left {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.footer-mid {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.8;
+  font-style: italic;
+}
+
+.footer-right {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.8;
+}
+
+.footer-right a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.footer-right a:hover { color: var(--yolk); }
+
+/* ─── MOBILE MENU ─── */
+.mob-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .mob-toggle { display: block; }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 100px 20px 60px;
+    min-height: auto;
+  }
+
+  .hero-left {
+    border-right: none;
+    border-bottom: 2px solid var(--ink);
+    padding-right: 0;
+    padding-bottom: 40px;
+    margin-bottom: 40px;
+  }
+
+  .hero-right { padding-left: 0; }
+
+  .section-inner { padding: 60px 20px; }
+
+  .principles {
+    grid-template-columns: 1fr;
+  }
+
+  .principle { border-right: none; border-bottom: 1px solid var(--rule); }
+  .principle:last-child { border-bottom: none; }
+
+  .inout { grid-template-columns: 1fr; }
+  .inout-col:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+
+  .reqs { grid-template-columns: 1fr; }
+  .req { border-right: none; border-bottom: 2px solid var(--ink); }
+  .req:last-child { border-bottom: none; }
+
+  .install-grid { grid-template-columns: 1fr; }
+  .install-step.full { grid-column: 1; }
+
+  .download {
+    grid-template-columns: 1fr;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .docs-grid { grid-template-columns: 1fr; }
+  .doc { border-right: none; }
+  .doc:nth-child(3n) { border-right: none; }
+  .doc:nth-last-child(-n+3) { border-bottom: 2px solid var(--ink); }
+  .doc:last-child { border-bottom: none; }
+
+  .forwhom { grid-template-columns: 1fr; }
+  .fw-col:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+
+  footer { flex-direction: column; text-align: center; padding: 40px 20px; }
+  .footer-right { text-align: center; }
+}
+
+/* ─── SCROLL ANIMATIONS ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+</style>
 </head>
 <body>
-    <nav>
-        <div class="container">
-            <a href="#" class="logo">AndaOS</a>
-            <div class="nav-right">
-                <ul class="nav-links" id="navLinks">
-                    <li><a href="#philosophy">Philosophy</a></li>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#download">Download</a></li>
-                    <li><a href="#docs">Docs</a></li>
-                    <li><a href="https://github.com/hello2himel/andaos">GitHub</a></li>
-                </ul>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
-                    <i class="ri-sun-line" id="theme-icon"></i>
-                </button>
-                <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Toggle menu">
-                    <i class="ri-menu-line" id="menu-icon"></i>
-                </button>
-            </div>
+
+<nav>
+  <a href="#" class="nav-logo">AndaOS</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#whats-in">Features</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="#docs">Docs</a></li>
+    <li><a href="https://github.com/hello2himel/andaos">GitHub</a></li>
+  </ul>
+  <a href="https://github.com/hello2himel/andaos/releases" class="nav-dl"><i class="ri-download-2-line"></i> Download</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
+    <i class="ri-sun-line" id="themeIcon"></i>
+  </button>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <p class="hero-tag"><i class="ri-arch-linux-line"></i> Arch Linux · XFCE · Rolling Release</p>
+      <h1 class="hero-h1">
+        <span class="line">Arch.</span>
+        <span class="line-accent">Without</span>
+        <span class="line">the pain.</span>
+      </h1>
+      <p class="hero-desc">AndaOS is an Arch-based distribution that ships ready to use. XFCE, no bloat, full Arch compatibility. Boot. Work. Done.</p>
+      <div class="hero-actions">
+        <a href="https://github.com/hello2himel/andaos/releases" class="btn-main"><i class="ri-download-2-line"></i> Download ISO</a>
+        <a href="https://github.com/hello2himel/andaos" class="btn-ghost"><i class="ri-github-line"></i> View source</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val">~1.5G</div>
+          <div class="stat-key">ISO Size</div>
         </div>
-    </nav>
+        <div class="stat">
+          <div class="stat-val">&lt;20s</div>
+          <div class="stat-key">Boot Time</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">&lt;500M</div>
+          <div class="stat-key">RAM Idle</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">Zero</div>
+          <div class="stat-key">Telemetry</div>
+        </div>
+      </div>
 
-    <main>
-        <div class="container">
-            <div class="hero">
-                <h1>Minimal by design.<br>Powerful by nature.</h1>
-                <p class="subtitle">A clean, transparent Arch-based distribution with XFCE. Zero bloat. Full control. Ready to use in minutes, not weeks.</p>
-                <p class="hero-note"><strong>Anda</strong> means egg in Bengali—also used to describe something delightfully stupid. This OS? Stupid simple. Stupid fast. Just stupid enough to be brilliant.</p>
-                <div class="cta-group">
-                    <a href="#download" class="btn btn-primary">Download AndaOS</a>
-                    <a href="https://github.com/hello2himel/andaos" class="btn btn-secondary">View on GitHub</a>
-                </div>
-            </div>
+      <div class="hero-anda">
+        <p><strong>Anda</strong> means egg in Bengali. Also: a charmingly stupid person. This OS is both — deceptively simple, quietly capable.</p>
+      </div>
+    </div>
+  </div>
 
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-value">~1.5 GB</div>
-                    <div class="stat-label">ISO Size</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value">&lt;20s</div>
-                    <div class="stat-label">Boot Time</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value">&lt;500 MB</div>
-                    <div class="stat-label">RAM Usage</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value">Zero</div>
-                    <div class="stat-label">Telemetry</div>
-                </div>
-            </div>
+  <!-- PHILOSOPHY -->
+  <section id="philosophy">
+    <div class="section-inner">
+      <div class="section-label">Philosophy</div>
+      <h2 class="section-h">Every package<br>earns its place.</h2>
+      <div class="principles">
+        <div class="principle reveal">
+          <div class="p-num">01</div>
+          <div class="p-title">Boot and work</div>
+          <p class="p-desc">XFCE configured with sensible defaults. No week of dotfile archaeology before you can open a browser.</p>
+        </div>
+        <div class="principle reveal">
+          <div class="p-num">02</div>
+          <div class="p-title">Nothing hidden</div>
+          <p class="p-desc">Every package, every config is documented. You know exactly what's running and why it's there.</p>
+        </div>
+        <div class="principle reveal">
+          <div class="p-num">03</div>
+          <div class="p-title">Full Arch access</div>
+          <p class="p-desc">Official repositories, AUR, the entire Arch wiki. Pure Arch underneath — just pre-assembled.</p>
+        </div>
+        <div class="principle reveal">
+          <div class="p-num">04</div>
+          <div class="p-title">You own it</div>
+          <p class="p-desc">No forced updates, no vendor lock-in. Your machine does what you say, not what we decided.</p>
+        </div>
+        <div class="principle reveal">
+          <div class="p-num">05</div>
+          <div class="p-title">Reproducible</div>
+          <p class="p-desc">Build identical ISOs from source using standard ArchISO tooling. Fork it, change it, ship it.</p>
+        </div>
+        <div class="principle reveal">
+          <div class="p-num">06</div>
+          <div class="p-title">No bloat</div>
+          <p class="p-desc">Fast boot, low memory, responsive desktop. Not by accident — by refusing to add things you don't need.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            <div class="etymology-box">
-                <h3>🥚 Why "AndaOS"?</h3>
-                <p>In Bengali, <strong>anda</strong> literally means egg, but colloquially? It's how you call someone charmingly stupid. We embrace the simplicity. Keep it simple, keep it stupid—that's the whole philosophy right there.</p>
+  <!-- WHAT'S IN / OUT -->
+  <section id="whats-in">
+    <div class="section-inner">
+      <div class="section-label">Contents</div>
+      <h2 class="section-h">What ships.<br>What doesn't.</h2>
+      <div class="inout">
+        <div class="inout-col">
+          <div class="inout-title">Included</div>
+          <ul class="inout-list">
+            <li><i class="ri-check-line li-icon"></i>XFCE 4 desktop, pre-configured</li>
+            <li><i class="ri-check-line li-icon"></i>Firefox with privacy defaults</li>
+            <li><i class="ri-check-line li-icon"></i>PipeWire audio stack</li>
+            <li><i class="ri-check-line li-icon"></i>NetworkManager + applet</li>
+            <li><i class="ri-check-line li-icon"></i>nano, vim, git, htop</li>
+            <li><i class="ri-check-line li-icon"></i>Full firmware &amp; hardware support</li>
+            <li><i class="ri-check-line li-icon"></i>Bluetooth with GUI controls</li>
+            <li><i class="ri-check-line li-icon"></i>Archive support (zip, tar, 7z)</li>
+          </ul>
+        </div>
+        <div class="inout-col out">
+          <div class="inout-title">Not included</div>
+          <ul class="inout-list">
+            <li><i class="ri-close-line li-icon"></i>Office suites — install if you need them</li>
+            <li><i class="ri-close-line li-icon"></i>Dev environments — add your own stack</li>
+            <li><i class="ri-close-line li-icon"></i>Gaming platforms — available via AUR</li>
+            <li><i class="ri-close-line li-icon"></i>Telemetry of any kind</li>
+            <li><i class="ri-close-line li-icon"></i>Background services that do nothing</li>
+            <li><i class="ri-close-line li-icon"></i>Software you'll never open</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REQUIREMENTS -->
+  <section>
+    <div class="section-inner">
+      <div class="section-label">Hardware</div>
+      <h2 class="section-h">Runs on<br>anything 64-bit.</h2>
+      <div class="reqs">
+        <div class="req reveal">
+          <div class="req-title">Minimum</div>
+          <ul class="req-list">
+            <li><strong>CPU</strong> x86_64</li>
+            <li><strong>RAM</strong> 2 GB</li>
+            <li><strong>Disk</strong> 10 GB</li>
+            <li><strong>Boot</strong> BIOS or UEFI</li>
+          </ul>
+        </div>
+        <div class="req reveal">
+          <div class="req-title">Recommended</div>
+          <ul class="req-list">
+            <li><strong>CPU</strong> Dual-core+</li>
+            <li><strong>RAM</strong> 4 GB</li>
+            <li><strong>Disk</strong> 20 GB SSD</li>
+            <li><strong>Boot</strong> UEFI (Secure Boot off)</li>
+          </ul>
+        </div>
+        <div class="req reveal">
+          <div class="req-title">Tested GPUs</div>
+          <ul class="req-list">
+            <li>Intel integrated graphics</li>
+            <li>AMD Radeon</li>
+            <li>NVIDIA (nouveau + proprietary)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="install">
+    <div class="section-inner">
+      <div class="section-label">Installation</div>
+      <h2 class="section-h">Three steps.</h2>
+
+      <div class="install-grid">
+
+        <!-- Step 1 -->
+        <div class="install-step reveal">
+          <div class="install-step-head">
+            <div class="install-step-icon"><i class="ri-usb-line"></i></div>
+            <div>
+              <div class="install-step-title">Write to USB</div>
+              <div class="install-step-sub">Step 01 · ~2 min</div>
             </div>
+          </div>
+          <div class="install-step-body">
+            <p class="install-step-desc">Download the ISO and flash it. Use <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;">dd</code> on Linux/macOS, or Rufus / balenaEtcher on Windows.</p>
+            <div class="code-wrap">
+              <div class="code-header">
+                <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+                <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code"><i class="ri-file-copy-line"></i></button>
+              </div>
+              <div class="code"><span class="code-comment"># Linux / macOS</span>
+<span class="code-cmd">sudo dd bs=4M if=andaos-*.iso of=/dev/sdX \
+     status=progress oflag=sync</span>
+
+<span class="code-comment"># Verify checksum</span>
+<span class="code-cmd">sha256sum -c SHA256SUMS</span></div>
+            </div>
+          </div>
         </div>
 
-        <section id="philosophy">
-            <div class="container">
-                <div class="section-header">
-                    <h2>The KISS Principle</h2>
-                    <p class="section-subtitle">Every component must answer: "Why is this here?" If not essential—removed. If optional—made optional. If configurable—made transparent.</p>
-                </div>
-
-                <div class="feature-grid">
-                    <div class="feature-card">
-                        <span class="feature-number">01</span>
-                        <h3>Instant Productivity</h3>
-                        <p>XFCE desktop pre-configured with sensible defaults. Boot and start working immediately. No week-long configuration marathons.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-number">02</span>
-                        <h3>Fully Auditable</h3>
-                        <p>Every package, every config file is documented and justified. No mysteries. No telemetry. You know exactly what's running.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-number">03</span>
-                        <h3>Arch Compatible</h3>
-                        <p>Uses official Arch repositories. Full access to AUR and comprehensive Arch documentation. The best of both worlds.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-number">04</span>
-                        <h3>Zero Bloat</h3>
-                        <p>Only essential packages. No hidden services, no unnecessary daemons. Fast boot, low memory footprint, responsive desktop.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-number">05</span>
-                        <h3>User Control</h3>
-                        <p>No forced updates, no vendor lock-in, no corporate decisions. You own your system completely and make all the choices.</p>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-number">06</span>
-                        <h3>Reproducible</h3>
-                        <p>Build identical ISOs from source using standard ArchISO tooling. Transparent, auditable, and completely open.</p>
-                    </div>
-                </div>
+        <!-- Step 2 -->
+        <div class="install-step reveal">
+          <div class="install-step-head">
+            <div class="install-step-icon"><i class="ri-restart-line"></i></div>
+            <div>
+              <div class="install-step-title">Boot from USB</div>
+              <div class="install-step-sub">Step 02 · ~1 min</div>
             </div>
-        </section>
-
-        <section id="features">
-            <div class="container">
-                <div class="section-header">
-                    <h2>What's included</h2>
-                    <p class="section-subtitle">Everything you need. Nothing you don't.</p>
-                </div>
-
-                <div class="two-col">
-                    <div class="list-section">
-                        <h3>In the box</h3>
-                        <ul>
-                            <li>XFCE 4 desktop environment</li>
-                            <li>Firefox with privacy-focused defaults</li>
-                            <li>PipeWire for modern audio routing</li>
-                            <li>NetworkManager with CLI and applet</li>
-                            <li>Essential tools: nano, vim, git, htop</li>
-                            <li>Full hardware support firmware</li>
-                            <li>Bluetooth stack with GUI controls</li>
-                            <li>Complete archive support (zip, tar, 7z)</li>
-                        </ul>
-                    </div>
-
-                    <div class="list-section negative">
-                        <h3>Not included</h3>
-                        <ul>
-                            <li>Office suites (install LibreOffice if needed)</li>
-                            <li>Development environments (add your stack)</li>
-                            <li>Gaming platforms (Steam/Lutris available)</li>
-                            <li>Bloatware and telemetry</li>
-                            <li>Unnecessary background services</li>
-                            <li>Hand-holding abstractions</li>
-                            <li>Mystery processes consuming RAM</li>
-                            <li>Software you'll never use</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="callout">
-                    <strong>Philosophy:</strong> AndaOS gives you a foundation. You add what <em>you</em> need. Your machine, your rules, your choices.
-                </div>
+          </div>
+          <div class="install-step-body">
+            <p class="install-step-desc">Restart your machine and select the USB drive in the boot menu. Disable Secure Boot if needed. The live XFCE desktop loads — no password required.</p>
+            <div class="install-note">
+              <i class="ri-information-line"></i> Boot menu shortcut is usually <code>F12</code>, <code>F11</code>, or <code>Del</code> depending on your firmware.
             </div>
-        </section>
-
-        <div class="container">
-            <div class="download-section" id="download">
-                <h2>Download AndaOS</h2>
-                <p>Rolling release based on Arch Linux · Always up to date</p>
-                <a href="https://github.com/hello2himel/andaos/releases" class="btn btn-primary">Get the latest release</a>
-            </div>
+          </div>
         </div>
 
-        <section>
-            <div class="container">
-                <div class="section-header">
-                    <h2>System Requirements</h2>
-                    <p class="section-subtitle">Runs on pretty much anything with a 64-bit processor.</p>
-                </div>
-
-                <div class="requirements">
-                    <div class="requirement-card">
-                        <h3>Minimum</h3>
-                        <ul>
-                            <li><span class="req-label">CPU:</span> x86_64 processor</li>
-                            <li><span class="req-label">RAM:</span> 2 GB</li>
-                            <li><span class="req-label">Storage:</span> 10 GB</li>
-                            <li><span class="req-label">Firmware:</span> BIOS or UEFI</li>
-                        </ul>
-                    </div>
-                    <div class="requirement-card">
-                        <h3>Recommended</h3>
-                        <ul>
-                            <li><span class="req-label">CPU:</span> Dual-core or better</li>
-                            <li><span class="req-label">RAM:</span> 4 GB+</li>
-                            <li><span class="req-label">Storage:</span> 20 GB SSD</li>
-                            <li><span class="req-label">Firmware:</span> UEFI (Secure Boot off)</li>
-                        </ul>
-                    </div>
-                    <div class="requirement-card">
-                        <h3>Tested Hardware</h3>
-                        <ul>
-                            <li>✓ Intel/AMD CPUs</li>
-                            <li>✓ Intel integrated graphics</li>
-                            <li>✓ AMD Radeon graphics</li>
-                            <li>✓ NVIDIA (nouveau + proprietary)</li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Step 3 — full width -->
+        <div class="install-step full reveal">
+          <div class="install-step-head">
+            <div class="install-step-icon"><i class="ri-hard-drive-2-line"></i></div>
+            <div>
+              <div class="install-step-title">Install to disk</div>
+              <div class="install-step-sub">Step 03 · ~10 min · Standard Arch procedure</div>
             </div>
-        </section>
+          </div>
+          <div class="install-step-body">
+            <p class="install-step-desc">AndaOS is 100% standard Arch under the hood. Partition, pacstrap, configure. No custom installer, no magic scripts — just the Arch way.</p>
+            <div class="code-wrap">
+              <div class="code-header">
+                <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+                <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code"><i class="ri-file-copy-line"></i></button>
+              </div>
+              <div class="code"><span class="code-comment"># 1. Partition your disk</span>
+<span class="code-cmd">cfdisk /dev/sda</span>
 
-        <section id="docs">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Getting Started</h2>
-                    <p class="section-subtitle">Three simple steps to your new operating system.</p>
-                </div>
+<span class="code-comment"># 2. Format and mount</span>
+<span class="code-cmd">mkfs.ext4 /dev/sda1 && mount /dev/sda1 /mnt</span>
 
-                <div class="install-steps">
-                    <div class="install-step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Write ISO to USB</h3>
-                            <p>Download the ISO and write it to a USB drive. Use dd on Linux/macOS, or Rufus/balenaEtcher on Windows.</p>
-                            <div class="code-block">
-<pre><code># Linux/macOS
-sudo dd bs=4M if=andaos-*.iso of=/dev/sdX status=progress oflag=sync
+<span class="code-comment"># 3. Install base system</span>
+<span class="code-cmd">pacstrap /mnt base linux xfce4 networkmanager</span>
 
-# Verify integrity
-sha256sum -c SHA256SUMS</code></pre>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="install-step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Boot from USB</h3>
-                            <p>Restart your computer and boot from the USB drive. Disable Secure Boot if enabled. The system auto-boots to a live XFCE desktop—no password required.</p>
-                        </div>
-                    </div>
-
-                    <div class="install-step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Install to Disk</h3>
-                            <p>Follow the Arch installation guide or use manual partitioning. AndaOS is 100% compatible with standard Arch installation procedures.</p>
-                            <div class="code-block">
-<pre><code># Partition, format, mount
-cfdisk /dev/sda
-mkfs.ext4 /dev/sda1
-mount /dev/sda1 /mnt
-
-# Install base system
-pacstrap /mnt base linux xfce4 networkmanager
-genfstab -U /mnt >> /mnt/etc/fstab</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-header" style="margin-top: 80px;">
-                    <h2>Documentation</h2>
-                    <p class="section-subtitle">Everything you need to know, from installation to customization.</p>
-                </div>
-
-                <div class="docs-grid">
-                    <a href="https://wiki.archlinux.org/title/Installation_guide" class="doc-card">
-                        <div class="doc-icon">📖</div>
-                        <h3>Installation Guide</h3>
-                        <p>Complete step-by-step installation instructions following Arch standards.</p>
-                        <span class="doc-link">Read the guide →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos#building-from-source" class="doc-card">
-                        <div class="doc-icon">🔨</div>
-                        <h3>Build from Source</h3>
-                        <p>Create your own custom ISO with your preferred packages and configuration.</p>
-                        <span class="doc-link">Build guide →</span>
-                    </a>
-
-                    <a href="https://wiki.archlinux.org" class="doc-card">
-                        <div class="doc-icon">🌐</div>
-                        <h3>Arch Wiki</h3>
-                        <p>The most comprehensive Linux documentation on the internet. Your best friend.</p>
-                        <span class="doc-link">Browse wiki →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos" class="doc-card">
-                        <div class="doc-icon">💻</div>
-                        <h3>GitHub Repository</h3>
-                        <p>Source code, issue tracker, and contribution guidelines. Everything is open.</p>
-                        <span class="doc-link">View source →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos/issues" class="doc-card">
-                        <div class="doc-icon">🐛</div>
-                        <h3>Report Issues</h3>
-                        <p>Found a bug? Have a feature request? Let us know and help improve AndaOS.</p>
-                        <span class="doc-link">Open issue →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos#customization" class="doc-card">
-                        <div class="doc-icon">🎨</div>
-                        <h3>Customization</h3>
-                        <p>Learn how to modify branding, packages, and desktop settings to make it yours.</p>
-                        <span class="doc-link">Customize →</span>
-                    </a>
-                </div>
-
-                <div class="section-header" style="margin-top: 80px;">
-                    <h2>Build Your Own</h2>
-                    <p class="section-subtitle">Fork it, customize it, make it yours. That's the whole point.</p>
-                </div>
-
-                <div class="code-block">
-<pre><code># Prerequisites on Arch Linux
-sudo pacman -S archiso git base-devel
-
-# Clone the repository
-git clone https://github.com/hello2himel/andaos.git
-cd andaos
-
-# Build ISO (automated script)
-./build.sh
-
-# Or manual build
-sudo mkarchiso -v -w work -o out .
-
-# Test in QEMU before deploying
-qemu-system-x86_64 -enable-kvm -m 4096 -boot d -cdrom out/andaos-*.iso</code></pre>
-                </div>
-
-                <div class="callout">
-                    <strong>Pro tip:</strong> Edit <code>packages.x86_64</code> to add your favorite software, modify <code>airootfs/etc/skel/</code> for custom configs, and change <code>airootfs/etc/os-release</code> for your own branding. It's your system—make it reflect that.
-                </div>
+<span class="code-comment"># 4. Generate fstab and chroot</span>
+<span class="code-cmd">genfstab -U /mnt >> /mnt/etc/fstab && arch-chroot /mnt</span></div>
             </div>
-        </section>
-
-        <section style="background: var(--bg); padding: 80px 0;">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Who is this for?</h2>
-                    <p class="section-subtitle">AndaOS isn't for everyone. And that's perfectly fine.</p>
-                </div>
-
-                <div class="two-col">
-                    <div class="list-section">
-                        <h3>Perfect for</h3>
-                        <ul>
-                            <li>Arch enthusiasts who want pre-configured convenience</li>
-                            <li>Developers who need a distraction-free workspace</li>
-                            <li>System administrators deploying consistent environments</li>
-                            <li>Students learning Linux fundamentals</li>
-                            <li>Privacy-conscious users wanting transparency</li>
-                            <li>Tinkerers who enjoy understanding their system</li>
-                            <li>Anyone who values simplicity over hand-holding</li>
-                        </ul>
-                    </div>
-
-                    <div class="list-section negative">
-                        <h3>Not recommended for</h3>
-                        <ul>
-                            <li>Users expecting Ubuntu-style guidance</li>
-                            <li>Those who want every package pre-installed</li>
-                            <li>Anyone uncomfortable with the terminal</li>
-                            <li>People who need commercial support</li>
-                            <li>Users wanting bleeding-edge experimental features</li>
-                            <li>Those who prefer point-and-click for everything</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="install-note" style="margin-top: 16px;">
+              <i class="ri-book-open-line"></i> New to Arch? Follow the <a href="https://wiki.archlinux.org/title/Installation_guide" style="color:var(--ink);font-weight:500;">official installation guide</a> — it covers every step in detail.
             </div>
-        </section>
-
-        <section>
-            <div class="container">
-                <div class="section-header">
-                    <h2>Community</h2>
-                    <p class="section-subtitle">Built by users, for users. Join us in keeping things stupid simple.</p>
-                </div>
-
-                <div class="docs-grid">
-                    <a href="https://github.com/hello2himel/andaos/discussions" class="doc-card">
-                        <div class="doc-icon">💬</div>
-                        <h3>Discussions</h3>
-                        <p>Ask questions, share tips, and connect with other AndaOS users.</p>
-                        <span class="doc-link">Join discussion →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos/blob/main/CONTRIBUTING.md" class="doc-card">
-                        <div class="doc-icon">🤝</div>
-                        <h3>Contributing</h3>
-                        <p>Help improve AndaOS. Every contribution matters, from docs to code.</p>
-                        <span class="doc-link">Start contributing →</span>
-                    </a>
-
-                    <a href="https://github.com/hello2himel/andaos/releases" class="doc-card">
-                        <div class="doc-icon">📦</div>
-                        <h3>Releases</h3>
-                        <p>Stay updated with the latest versions and release notes.</p>
-                        <span class="doc-link">View releases →</span>
-                    </a>
-                </div>
-
-                <div class="callout" style="margin-top: 48px;">
-                    <strong>Contribution guidelines:</strong> We follow the KISS principle for contributions too. Justify new packages, document your changes, test thoroughly, and keep it simple. Pull requests that add unnecessary complexity will be politely declined.
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>Made with ❤️ by the AndaOS community</p>
-            <p style="font-style: italic; margin-bottom: 16px;">Keep it simple. Keep it stupid.</p>
-            <p>Licensed under MIT · Not affiliated with <a href="https://archlinux.org">Arch Linux</a></p>
-            <p style="margin-top: 16px; font-size: 13px;">AndaOS is an independent, community-maintained distribution</p>
+          </div>
         </div>
-    </footer>
 
-    <script>
-        function toggleTheme() {
-            const root = document.documentElement;
-            const isDark = root.getAttribute('data-theme') === 'dark';
-            root.setAttribute('data-theme', isDark ? '' : 'dark');
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-            document.getElementById('theme-icon').classList.toggle('ri-sun-line');
-            document.getElementById('theme-icon').classList.toggle('ri-moon-line');
-        }
+      </div>
+    </div>
+  </section>
 
-        function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            const menuIcon = document.getElementById('menu-icon');
-            navLinks.classList.toggle('active');
-            menuIcon.classList.toggle('ri-menu-line');
-            menuIcon.classList.toggle('ri-close-line');
-        }
+  <!-- DOWNLOAD -->
+  <div id="download" class="download reveal">
+    <div class="dl-left">
+      <h2>Get<br><span>AndaOS.</span></h2>
+      <p>Rolling release · Always current</p>
+    </div>
+    <a href="https://github.com/hello2himel/andaos/releases" class="btn-dl"><i class="ri-download-2-line"></i> Download Latest ISO</a>
+  </div>
 
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('navLinks').classList.remove('active');
-                document.getElementById('menu-icon').classList.add('ri-menu-line');
-                document.getElementById('menu-icon').classList.remove('ri-close-line');
-            });
-        });
+  <!-- DOCS -->
+  <section id="docs">
+    <div class="section-inner">
+      <div class="section-label">Documentation</div>
+      <h2 class="section-h">Everything<br>you need.</h2>
+      <div class="docs-grid">
+        <a href="https://wiki.archlinux.org/title/Installation_guide" class="doc">
+          <div class="doc-title"><i class="ri-book-open-line"></i> Installation Guide</div>
+          <p class="doc-desc">Full step-by-step install, following Arch standards to the letter.</p>
+          <div class="doc-arrow">Read <i class="ri-arrow-right-line"></i></div>
+        </a>
+        <a href="https://github.com/hello2himel/andaos#building-from-source" class="doc">
+          <div class="doc-title"><i class="ri-hammer-line"></i> Build from Source</div>
+          <p class="doc-desc">Create your own custom ISO. Change packages, branding, defaults.</p>
+          <div class="doc-arrow">Build <i class="ri-arrow-right-line"></i></div>
+        </a>
+        <a href="https://wiki.archlinux.org" class="doc">
+          <div class="doc-title"><i class="ri-earth-line"></i> Arch Wiki</div>
+          <p class="doc-desc">The most comprehensive Linux documentation in existence. Your best resource.</p>
+          <div class="doc-arrow">Browse <i class="ri-arrow-right-line"></i></div>
+        </a>
+        <a href="https://github.com/hello2himel/andaos" class="doc">
+          <div class="doc-title"><i class="ri-github-line"></i> Source Code</div>
+          <p class="doc-desc">Everything is open. Read it, fork it, question it.</p>
+          <div class="doc-arrow">GitHub <i class="ri-arrow-right-line"></i></div>
+        </a>
+        <a href="https://github.com/hello2himel/andaos/issues" class="doc">
+          <div class="doc-title"><i class="ri-bug-line"></i> Report a Bug</div>
+          <p class="doc-desc">Found something wrong? Open an issue. We'll fix it.</p>
+          <div class="doc-arrow">Open issue <i class="ri-arrow-right-line"></i></div>
+        </a>
+        <a href="https://github.com/hello2himel/andaos/discussions" class="doc">
+          <div class="doc-title"><i class="ri-discuss-line"></i> Discussions</div>
+          <p class="doc-desc">Questions, tips, and conversation with other AndaOS users.</p>
+          <div class="doc-arrow">Join <i class="ri-arrow-right-line"></i></div>
+        </a>
+      </div>
 
-        if (localStorage.getItem('theme') === 'dark' || 
-            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('theme-icon').classList.replace('ri-sun-line', 'ri-moon-line');
-        }
-    </script>
+      <div style="margin-top: 60px;">
+        <div class="section-label">Build your own</div>
+        <div class="code-wrap" style="margin-top: 24px;">
+          <div class="code-header">
+            <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code"><i class="ri-file-copy-line"></i></button>
+          </div>
+          <div class="code"><span class="code-comment"># Prerequisites</span>
+<span class="code-cmd">sudo pacman -S archiso git base-devel</span>
+
+<span class="code-comment"># Clone</span>
+<span class="code-cmd">git clone https://github.com/hello2himel/andaos.git && cd andaos</span>
+
+<span class="code-comment"># Build</span>
+<span class="code-cmd">./build.sh</span>
+
+<span class="code-comment"># Test in QEMU</span>
+<span class="code-cmd">qemu-system-x86_64 -enable-kvm -m 4096 -boot d -cdrom out/andaos-*.iso</span></div>
+        </div>
+        <p style="margin-top: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted);">Edit <code style="color: var(--ink);">packages.x86_64</code> to add packages · <code style="color: var(--ink);">airootfs/etc/skel/</code> for user configs · <code style="color: var(--ink);">airootfs/etc/os-release</code> for branding.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOR WHO -->
+  <section>
+    <div class="section-inner">
+      <div class="section-label">Audience</div>
+      <h2 class="section-h">Not for everyone.<br>That's the point.</h2>
+      <div class="forwhom">
+        <div class="fw-col">
+          <div class="fw-title">Good fit</div>
+          <ul class="fw-list">
+            <li><i class="ri-user-line li-icon"></i>Arch users who want a pre-configured starting point</li>
+            <li><i class="ri-code-s-slash-line li-icon"></i>Developers who need a clean, focused workspace</li>
+            <li><i class="ri-server-line li-icon"></i>Sysadmins deploying consistent environments</li>
+            <li><i class="ri-graduation-cap-line li-icon"></i>Students learning Linux from the ground up</li>
+            <li><i class="ri-shield-check-line li-icon"></i>Anyone who values knowing what's on their machine</li>
+          </ul>
+        </div>
+        <div class="fw-col bad">
+          <div class="fw-title">Bad fit</div>
+          <ul class="fw-list">
+            <li><i class="ri-close-circle-line li-icon"></i>Users expecting Ubuntu-style hand-holding</li>
+            <li><i class="ri-close-circle-line li-icon"></i>People who want everything pre-installed</li>
+            <li><i class="ri-close-circle-line li-icon"></i>Anyone uncomfortable with a terminal</li>
+            <li><i class="ri-close-circle-line li-icon"></i>Those needing commercial support contracts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-left">AndaOS</div>
+  <div class="footer-mid">Keep it simple. Keep it stupid.</div>
+  <div class="footer-right">
+    <i class="ri-scales-line"></i> MIT License · Not affiliated with <a href="https://archlinux.org">Arch Linux</a><br>
+    Community maintained · <a href="https://github.com/hello2himel/andaos"><i class="ri-github-line"></i> GitHub</a>
+  </div>
+</footer>
+
+<script>
+// Scroll reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Dark mode
+function setThemeIcon(isDark) {
+  const icon = document.getElementById('themeIcon');
+  if (!icon) return;
+  icon.className = isDark ? 'ri-moon-line' : 'ri-sun-line';
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('anda-theme', next);
+  setThemeIcon(next === 'dark');
+}
+
+(function() {
+  const saved = localStorage.getItem('anda-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  document.addEventListener('DOMContentLoaded', () => setThemeIcon(theme === 'dark'));
+})();
+
+// Copy buttons — icon swaps to check on success
+function copyCode(btn) {
+  const codeEl = btn.closest('.code-wrap').querySelector('.code');
+  const text = codeEl.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const icon = btn.querySelector('i');
+    icon.className = 'ri-check-line';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      icon.className = 'ri-file-copy-line';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
 </body>
 </html>
