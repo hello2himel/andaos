@@ -436,9 +436,9 @@
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .cards { grid-template-columns: 1fr; }
       .waybar { grid-template-columns: 1fr auto; height: auto; row-gap: 8px; padding: 8px; }
-      .bar-mid { display: none; }
+      .bar-mid { display: flex; justify-content: flex-start; grid-column: 1 / -1; font-size: 10px; }
       .bar-right { justify-content: flex-start; flex-wrap: wrap; }
-      .hints { display: none; }
+      .hints { font-size: 10px; right: 10px; bottom: 10px; max-width: calc(100vw - 20px); }
     }
   </style>
 </head>
@@ -702,9 +702,10 @@ pacstrap /mnt base linux hyprland networkmanager</div>
     const workspaceViews = [...document.querySelectorAll('[data-workspace-view]')];
 
     function openWorkspace(workspaceId) {
-      workspaceButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.workspace === workspaceId));
+      const normalizedWorkspaceId = String(workspaceId);
+      workspaceButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.workspace === normalizedWorkspaceId));
       workspaceViews.forEach(view => {
-        const isActive = view.dataset.workspaceView === workspaceId;
+        const isActive = view.dataset.workspaceView === normalizedWorkspaceId;
         view.classList.toggle('active', isActive);
       });
       document.getElementById('launchpad').classList.remove('open');
@@ -730,7 +731,10 @@ pacstrap /mnt base linux hyprland networkmanager</div>
 
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const clock = document.getElementById('clock');
+      if (clock) {
+        clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
     }
 
     updateClock();
