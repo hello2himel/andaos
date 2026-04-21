@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -428,7 +428,7 @@
         display: none;
       }
 
-      .workspace-view.active.mobile {
+      .workspace-view.active {
         display: grid;
         grid-template-columns: 1fr;
       }
@@ -504,7 +504,7 @@
     </aside>
 
     <div class="workspace-stage">
-      <section class="workspace-view active mobile" data-workspace-view="1">
+      <section class="workspace-view active" data-workspace-view="1">
         <article class="window">
           <div class="window-bar">
             <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -560,7 +560,7 @@ $ git clone https://github.com/hello2himel/andaos</div>
         </div>
       </section>
 
-      <section class="workspace-view mobile" data-workspace-view="2">
+      <section class="workspace-view" data-workspace-view="2">
         <article class="window">
           <div class="window-bar">
             <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -613,7 +613,7 @@ pacstrap /mnt base linux hyprland networkmanager</div>
         </div>
       </section>
 
-      <section class="workspace-view mobile" data-workspace-view="3">
+      <section class="workspace-view" data-workspace-view="3">
         <article class="window">
           <div class="window-bar">
             <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -701,12 +701,11 @@ pacstrap /mnt base linux hyprland networkmanager</div>
     const workspaceButtons = [...document.querySelectorAll('.workspace-btn')];
     const workspaceViews = [...document.querySelectorAll('[data-workspace-view]')];
 
-    function openWorkspace(id) {
-      workspaceButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.workspace === id));
+    function openWorkspace(workspaceId) {
+      workspaceButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.workspace === workspaceId));
       workspaceViews.forEach(view => {
-        const isActive = view.dataset.workspaceView === id;
+        const isActive = view.dataset.workspaceView === workspaceId;
         view.classList.toggle('active', isActive);
-        view.classList.toggle('mobile', isActive);
       });
       document.getElementById('launchpad').classList.remove('open');
     }
