@@ -1,1431 +1,742 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AndaOS — Hyprland Edition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
-<style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --ink:        #3b2507;
-  --paper:      #f5ede0;
-  --yolk:       #e8a830;
-  --yolk-hi:    #f5c842;
-  --butter:     #d4890a;
-  --muted:      #8a6a3a;
-  --rule:       #e0c89a;
-  --surface:    #eee3cc;
-  --surface2:   #e6d8bc;
-  --red:        #b83225;
-  --green:      #4a7c3f;
-  --win-border: #e0c89a;
-  --win-border-active: #e8a830;
-  --win-titlebar: #eee3cc;
-  --win-radius: 8px;
-  --win-shadow: 0 4px 24px rgba(59,37,7,0.12);
-  --code-bg:      #2a1c0e;
-  --code-fg:      #f5ede0;
-  --code-comment: #8a6a3a;
-  --code-border:  #3e2a10;
-}
-
-[data-theme="dark"] {
-  --ink:        #f5ede0;
-  --paper:      #1a1510;
-  --yolk:       #f5c842;
-  --yolk-hi:    #f5c842;
-  --butter:     #e8a830;
-  --muted:      #a89880;
-  --rule:       #3b2e1e;
-  --surface:    #241c12;
-  --surface2:   #2e2416;
-  --red:        #e06050;
-  --green:      #7ec86e;
-  --win-border: #3b2e1e;
-  --win-border-active: #f5c842;
-  --win-titlebar: #241c12;
-  --win-shadow: 0 4px 32px rgba(0,0,0,0.6);
-  --code-bg:      #110e0a;
-  --code-fg:      #f5ede0;
-  --code-comment: #7a6a58;
-  --code-border:  #2a2018;
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 15px;
-  line-height: 1.65;
-  overflow-x: hidden;
-  background-image: radial-gradient(circle, var(--rule) 1px, transparent 1px);
-  background-size: 28px 28px;
-  background-attachment: fixed;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: var(--paper);
-  opacity: 0.88;
-  pointer-events: none;
-  z-index: 0;
-}
-
-main, nav, footer, .desktop { position: relative; z-index: 1; }
-
-/* ── WAYBAR ── */
-.waybar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 44px;
-  z-index: 200;
-  background: var(--surface);
-  border-bottom: 1px solid var(--win-border);
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  gap: 0;
-}
-
-.wb-left { display: flex; align-items: center; gap: 16px; flex: 1; }
-
-.wb-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 2px;
-  color: var(--ink);
-  text-decoration: none;
-  line-height: 1;
-}
-
-.wb-workspaces { display: flex; gap: 6px; align-items: center; }
-
-.wb-ws {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--rule);
-  transition: background 0.2s, transform 0.2s;
-  cursor: pointer;
-}
-
-.wb-ws.active { background: var(--yolk); transform: scale(1.3); }
-.wb-ws.occupied { background: var(--muted); }
-
-.wb-nav { display: flex; gap: 2px; }
-
-.wb-nav a {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-}
-
-.wb-nav a:hover { color: var(--ink); background: var(--surface2); }
-
-.wb-right { display: flex; align-items: center; gap: 4px; flex: 1; justify-content: flex-end; }
-
-.wb-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--surface2);
-  border: 1px solid var(--win-border);
-  border-radius: 20px;
-  padding: 4px 11px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.wb-pill i { font-size: 11px; }
-.wb-pill.accent { color: var(--yolk); border-color: var(--yolk); }
-
-.wb-sep { width: 1px; height: 20px; background: var(--win-border); margin: 0 5px; }
-
-.wb-clock {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  color: var(--ink);
-  font-weight: 600;
-  min-width: 44px;
-  text-align: right;
-}
-
-.wb-theme-btn {
-  background: var(--surface2);
-  border: 1px solid var(--win-border);
-  border-radius: 20px;
-  color: var(--muted);
-  font-size: 13px;
-  cursor: pointer;
-  padding: 4px 10px;
-  display: flex;
-  align-items: center;
-  transition: all 0.15s;
-}
-
-.wb-theme-btn:hover { border-color: var(--yolk); color: var(--yolk); }
-
-.wb-dl {
-  background: var(--yolk);
-  color: #1a1510;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background 0.15s;
-}
-
-.wb-dl:hover { background: var(--butter); }
-
-/* ── DESKTOP ── */
-.desktop { padding: 60px 24px 24px; min-height: 100vh; }
-
-/* ── HERO ── */
-.workspace-hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  min-height: calc(100vh - 88px);
-  padding: 24px 0;
-  align-items: center;
-}
-
-.win {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.win:hover {
-  border-color: var(--win-border-active);
-  box-shadow: 0 0 0 1px var(--win-border-active), var(--win-shadow);
-}
-
-.win-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  padding: 0 14px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  user-select: none;
-}
-
-.win-dots { display: flex; gap: 6px; }
-.win-dot { width: 10px; height: 10px; border-radius: 50%; }
-.win-dot.close  { background: #e06050; }
-.win-dot.min    { background: var(--yolk); }
-.win-dot.max    { background: var(--green); }
-
-.win-title {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.5px;
-  flex: 1;
-  text-align: center;
-}
-
-.win-body { padding: 28px 32px; }
-
-.hero-tag {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hero-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(56px, 8vw, 104px);
-  line-height: 1;
-  letter-spacing: 1px;
-  margin-bottom: 24px;
-}
-
-.hero-h1 .line { display: block; line-height: 1.05; }
-
-.hero-h1 .line-accent {
-  display: block;
-  line-height: 1.05;
-  color: var(--surface);
-  background: var(--ink);
-  padding: 0 8px;
-  margin-left: -4px;
-  width: fit-content;
-}
-
-[data-theme="dark"] .hero-h1 .line-accent {
-  color: #1a1510;
-  background: var(--yolk);
-}
-
-.hero-desc {
-  font-size: 15px;
-  color: var(--muted);
-  max-width: 380px;
-  line-height: 1.75;
-  margin-bottom: 32px;
-}
-
-.hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-.btn-main {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 11px 26px;
-  text-decoration: none;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  transition: all 0.15s;
-  border: 1px solid var(--ink);
-}
-
-.btn-main:hover { background: var(--yolk); color: #1a1510; border-color: var(--yolk); }
-
-.btn-ghost {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 11px 18px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  transition: all 0.15s;
-}
-
-.btn-ghost:hover { color: var(--ink); border-color: var(--ink); }
-
-/* Omelette panel */
-.hero-egg .win-body {
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 340px;
-  background: var(--surface);
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-egg .win-body::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 45% 65%, var(--surface2) 0%, transparent 70%);
-}
-
-.egg-svg {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 8px 20px rgba(59,37,7,0.18));
-}
-
-.egg-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid var(--win-border);
-}
-
-.egg-stat { padding: 12px 14px; border-right: 1px solid var(--win-border); text-align: center; }
-.egg-stat:last-child { border-right: none; }
-
-.egg-stat-val {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: 1px;
-  color: var(--yolk);
-  display: block;
-}
-
-.egg-stat-key {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-  display: block;
-  margin-top: 2px;
-}
-
-/* ── SECTION WRAPPER ── */
-.workspace { padding: 28px 0 0; }
-
-.workspace-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.workspace-label::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--yolk);
-  flex-shrink: 0;
-}
-
-.workspace-label::after {
-  content: '';
-  flex: 1; height: 1px;
-  background: var(--rule);
-}
-
-.section-h {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(36px, 5vw, 64px);
-  line-height: 0.95;
-  letter-spacing: -1px;
-  margin-bottom: 24px;
-}
-
-/* ── TILING GRID (philosophy) ── */
-.tiling-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.tile {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  cursor: default;
-}
-
-.tile:hover {
-  border-color: var(--win-border-active);
-  box-shadow: 0 0 0 1px var(--win-border-active), var(--win-shadow);
-  transform: translateY(-2px);
-}
-
-.tile-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  height: 28px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  gap: 8px;
-}
-
-.tile-bar-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--win-border); }
-.tile:hover .tile-bar-dot { background: var(--yolk); }
-
-.tile-bar-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); }
-
-.tile-body { padding: 22px; }
-
-.tile-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 44px;
-  line-height: 1;
-  color: var(--rule);
-  margin-bottom: 10px;
-  transition: color 0.2s;
-}
-
-.tile:hover .tile-num { color: var(--yolk); }
-.tile-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-.tile-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
-
-/* ── SPLIT WINDOW (in/out) ── */
-.split-win {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-}
-
-.split-pane { padding: 26px; }
-.split-pane:first-child { border-right: 1px solid var(--win-border); }
-
-.split-pane-title {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--muted);
-  margin-bottom: 18px;
-  padding-bottom: 11px;
-  border-bottom: 1px solid var(--win-border);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.split-pane-title i { color: var(--yolk); }
-.split-pane.out .split-pane-title i { color: var(--red); }
-
-.split-list { list-style: none; }
-
-.split-list li {
-  padding: 9px 0;
-  font-size: 13px;
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--muted);
-  transition: color 0.15s;
-}
-
-.split-list li:last-child { border-bottom: none; }
-.split-list li:hover { color: var(--ink); }
-.split-list li i { font-size: 13px; color: var(--yolk); flex-shrink: 0; }
-.split-pane.out .split-list li i { color: var(--red); }
-
-/* ── REQUIREMENTS ── */
-.req-win {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-}
-
-.req-win-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 10px;
-}
-
-.req-panels { display: grid; grid-template-columns: repeat(3, 1fr); }
-
-.req-panel { padding: 22px; border-right: 1px solid var(--win-border); }
-.req-panel:last-child { border-right: none; }
-
-.req-panel-title {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--muted);
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--win-border);
-}
-
-.req-list { list-style: none; }
-
-.req-list li {
-  padding: 7px 0;
-  font-size: 13px;
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  gap: 8px;
-  color: var(--muted);
-}
-
-.req-list li:last-child { border-bottom: none; }
-.req-list strong { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink); min-width: 44px; }
-
-/* ── INSTALL ── */
-.install-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.install-win {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.install-win:hover { border-color: var(--win-border-active); }
-.install-win.wide { grid-column: 1 / -1; }
-
-.install-win-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  gap: 10px;
-}
-
-.install-win-icon {
-  width: 20px; height: 20px;
-  background: var(--yolk);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  color: #1a1510;
-  flex-shrink: 0;
-}
-
-.install-win-title {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.install-win-sub {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  margin-left: auto;
-}
-
-.install-win-body { padding: 18px 20px; }
-.install-desc { font-size: 13px; color: var(--muted); line-height: 1.75; margin-bottom: 14px; }
-
-.install-note {
-  padding: 10px 13px;
-  background: var(--surface2);
-  border-left: 3px solid var(--yolk);
-  border-radius: 0 4px 4px 0;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.7;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.install-note i { margin-top: 1px; color: var(--yolk); flex-shrink: 0; }
-.install-note a { color: var(--ink); font-weight: 600; }
-.install-note code { font-size: 10px; color: var(--ink); background: var(--surface); padding: 1px 4px; border-radius: 3px; }
-
-/* ── CODE BLOCKS ── */
-.code-wrap { position: relative; margin-top: 12px; }
-
-.code-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 13px;
-  background: var(--code-bg);
-  border: 1px solid var(--code-border);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-}
-
-.code-dots { display: flex; gap: 5px; }
-.code-dot-s { width: 9px; height: 9px; border-radius: 50%; background: var(--code-border); }
-
-.copy-btn {
-  font-size: 13px;
-  color: var(--code-comment);
-  background: none;
-  border: 1px solid var(--code-border);
-  padding: 3px 7px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-}
-
-.copy-btn:hover { color: #f5c842; border-color: #f5c842; }
-.copy-btn.copied { color: #7ec86e; border-color: #7ec86e; }
-
-.code {
-  background: var(--code-bg);
-  color: var(--code-fg);
-  border: 1px solid var(--code-border);
-  border-top: 1px solid #3e2a10;
-  border-radius: 0 0 6px 6px;
-  padding: 14px 18px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  line-height: 1.85;
-  overflow-x: auto;
-}
-
-.code-comment { color: var(--code-comment); }
-.code-cmd { color: #f5c842; }
-
-/* ── DOWNLOAD ── */
-.download-win {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: #110e0a;
-  box-shadow: 0 0 0 1px #f5c84222, var(--win-shadow);
-  overflow: hidden;
-  margin: 28px 0 0;
-}
-
-.download-win-bar {
-  background: #1a1510;
-  border-bottom: 1px solid #2a2018;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 10px;
-}
-
-.download-win-body {
-  padding: 56px 44px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 40px;
-}
-
-.dl-h {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(44px, 6vw, 84px);
-  line-height: 0.95;
-  color: #f5ede0;
-  margin-bottom: 10px;
-}
-
-.dl-h span { color: #f5c842; }
-
-.dl-sub {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: #7a6a58;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.btn-dl {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: #f5c842;
-  color: #1a1510;
-  padding: 15px 36px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  border-radius: 6px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 0.15s, transform 0.15s;
-  box-shadow: 0 0 20px #f5c84244;
-}
-
-.btn-dl:hover { background: #e8a830; transform: translateY(-1px); }
-
-/* ── DOCS ── */
-.docs-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.doc-tile {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  padding: 20px;
-  text-decoration: none;
-  color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: all 0.2s;
-}
-
-.doc-tile:hover {
-  border-color: var(--win-border-active);
-  background: var(--surface2);
-  box-shadow: 0 0 0 1px var(--win-border-active), var(--win-shadow);
-  transform: translateY(-2px);
-}
-
-.doc-tile-icon {
-  width: 30px; height: 30px;
-  background: var(--surface2);
-  border: 1px solid var(--win-border);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  color: var(--yolk);
-  margin-bottom: 4px;
-}
-
-.doc-tile:hover .doc-tile-icon {
-  background: var(--yolk);
-  color: #1a1510;
-  border-color: var(--yolk);
-}
-
-.doc-tile-title { font-weight: 500; font-size: 14px; }
-.doc-tile-desc { font-size: 12px; color: var(--muted); line-height: 1.6; flex: 1; }
-
-.doc-tile-arrow {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.doc-tile:hover .doc-tile-arrow { color: var(--ink); }
-
-.build-win {
-  margin-top: 12px;
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-}
-
-.build-win-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 10px;
-}
-
-.build-win-body { padding: 18px 20px; }
-
-.build-note {
-  margin-top: 11px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.8;
-}
-
-.build-note code {
-  color: var(--ink);
-  background: var(--surface2);
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-size: 10px;
-}
-
-/* ── FOR WHO ── */
-.forwhom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-.fw-win {
-  border: 1px solid var(--win-border);
-  border-radius: var(--win-radius);
-  background: var(--surface);
-  box-shadow: var(--win-shadow);
-  overflow: hidden;
-}
-
-.fw-win-bar {
-  background: var(--win-titlebar);
-  border-bottom: 1px solid var(--win-border);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 10px;
-}
-
-.fw-win-bar-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 15px;
-  letter-spacing: 1px;
-  color: var(--ink);
-}
-
-.fw-win.bad .fw-win-bar-title { color: var(--red); }
-.fw-win-body { padding: 18px 20px; }
-
-.fw-list { list-style: none; }
-
-.fw-list li {
-  padding: 9px 0;
-  font-size: 13px;
-  color: var(--muted);
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  transition: color 0.15s;
-}
-
-.fw-list li:last-child { border-bottom: none; }
-.fw-list li:hover { color: var(--ink); }
-.fw-list li i { font-size: 14px; color: var(--yolk); flex-shrink: 0; }
-.fw-win.bad .fw-list li i { color: var(--red); }
-
-/* ── FOOTER ── */
-.wfooter {
-  border-top: 1px solid var(--win-border);
-  background: var(--surface);
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  margin-top: 16px;
-  position: relative;
-  z-index: 1;
-}
-
-.wf-left { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
-.wf-mid { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); font-style: italic; }
-.wf-right { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); text-align: right; line-height: 1.8; }
-.wf-right a { color: var(--ink); text-decoration: none; }
-.wf-right a:hover { color: var(--yolk); }
-
-/* ── SCROLL REVEALS ── */
-.reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
-
-.reveal.visible { opacity: 1; transform: none; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .waybar { padding: 0 12px; }
-  .wb-nav, .wb-pill, .wb-sep:not(:last-of-type) { display: none; }
-  .desktop { padding: 54px 12px 12px; }
-  .workspace-hero { grid-template-columns: 1fr; min-height: auto; }
-  .tiling-grid { grid-template-columns: 1fr 1fr; }
-  .split-win { grid-template-columns: 1fr; }
-  .split-pane:first-child { border-right: none; border-bottom: 1px solid var(--win-border); }
-  .req-panels { grid-template-columns: 1fr; }
-  .req-panel { border-right: none; border-bottom: 1px solid var(--win-border); }
-  .req-panel:last-child { border-bottom: none; }
-  .install-layout { grid-template-columns: 1fr; }
-  .install-win.wide { grid-column: 1; }
-  .download-win-body { grid-template-columns: 1fr; text-align: center; padding: 36px 20px; }
-  .docs-grid { grid-template-columns: 1fr 1fr; }
-  .forwhom-grid { grid-template-columns: 1fr; }
-  .wfooter { flex-direction: column; text-align: center; }
-  .wf-right { text-align: center; }
-}
-
-@media (max-width: 560px) {
-  .tiling-grid { grid-template-columns: 1fr; }
-  .docs-grid { grid-template-columns: 1fr; }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AndaOS — Hyprland Desktop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" />
+  <style>
+    :root {
+      --bg: #0d0f13;
+      --panel: #141922d8;
+      --panel-2: #11161ee8;
+      --border: #2f3644;
+      --text: #ecf1fc;
+      --muted: #a4adbb;
+      --hint: #7f8794;
+      --accent: #78a7ff;
+      --accent-2: #f6c453;
+      --ok: #7bc081;
+      --danger: #ed7b7b;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: radial-gradient(circle at 20% -10%, #1f2633 0%, #0d0f13 40%, #090b0f 100%);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .boot {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: #050608;
+      display: grid;
+      place-items: center;
+      transition: opacity 0.55s ease, visibility 0.55s ease;
+    }
+
+    .boot.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .boot-box {
+      width: min(680px, 92vw);
+      border: 1px solid #29303f;
+      border-radius: var(--radius);
+      background: #0d121a;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .boot-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    .boot-log {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      font-size: 12px;
+      color: #98a0af;
+      max-height: 220px;
+    }
+
+    .boot-log li.done { color: var(--ok); }
+
+    .boot-progress {
+      margin-top: 16px;
+      height: 7px;
+      border-radius: 999px;
+      background: #1b2230;
+      overflow: hidden;
+      border: 1px solid #2a3344;
+    }
+
+    .boot-progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), #9fbfff);
+      transition: width 0.28s ease;
+    }
+
+    .desktop {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .desktop.ready { opacity: 1; }
+
+    .wallpaper {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: grid;
+      place-items: center;
+      opacity: 0.14;
+      filter: blur(0.2px) drop-shadow(0 20px 50px rgba(0, 0, 0, 0.8));
+    }
+
+    .wallpaper svg {
+      width: min(720px, 75vw);
+      height: auto;
+    }
+
+    .waybar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      backdrop-filter: blur(12px);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 0 12px;
+      gap: 12px;
+      z-index: 10;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
+    .bar-left, .bar-mid, .bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-mid { justify-content: center; }
+    .bar-right { justify-content: flex-end; }
+
+    .logo {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      font-size: 13px;
+    }
+
+    .workspace-btn {
+      border: 1px solid transparent;
+      background: #1a202bd1;
+      color: var(--muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .workspace-btn.active {
+      color: #0d121a;
+      background: var(--accent);
+      border-color: #a4c3ff;
+      font-weight: 600;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 10px;
+      color: var(--muted);
+      background: #1a202c;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .launch-btn, .quick {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #1a202b;
+      color: var(--text);
+      height: 27px;
+      padding: 0 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quick:hover, .launch-btn:hover, .workspace-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .clock { color: var(--accent-2); min-width: 68px; text-align: right; }
+
+    .hints {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      color: var(--hint);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      text-align: right;
+      z-index: 6;
+      background: #0e131a92;
+      border: 1px solid #2a3341;
+      border-radius: 7px;
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    .workspace-stage {
+      position: absolute;
+      inset: 58px 12px 12px;
+    }
+
+    .workspace-view {
+      width: 100%;
+      height: 100%;
+      display: none;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      align-content: stretch;
+    }
+
+    .workspace-view.active { display: grid; }
+
+    .window {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--panel-2);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 150px;
+    }
+
+    .window-bar {
+      height: 31px;
+      border-bottom: 1px solid var(--border);
+      background: #151b25;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .dots { display: flex; gap: 6px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .dot.red { background: var(--danger); }
+    .dot.yellow { background: var(--accent-2); }
+    .dot.green { background: var(--ok); }
+
+    .window-body {
+      padding: 16px;
+      overflow: auto;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #cad0dd;
+      scrollbar-width: thin;
+    }
+
+    .window-body h1,
+    .window-body h2,
+    .window-body h3 { color: #f4f7ff; margin-bottom: 10px; line-height: 1.3; }
+
+    .window-body h1 { font-size: 25px; }
+    .window-body h2 { font-size: 20px; }
+    .window-body h3 { font-size: 16px; }
+
+    .window-body p + p,
+    .window-body ul,
+    .window-body ol,
+    .window-body .code,
+    .window-body .cards,
+    .window-body .stats,
+    .window-body .panel-list { margin-top: 10px; }
+
+    .mono { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #1a1f2b;
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .card strong { color: var(--accent-2); font-family: 'IBM Plex Mono', monospace; font-size: 11px; display: block; margin-bottom: 4px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      background: #1a1f2b;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .stat b { display: block; color: var(--accent); font-size: 18px; }
+    .stat span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+
+    .panel-list { list-style: none; display: grid; gap: 8px; }
+    .panel-list li {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #1a202b;
+      padding: 9px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .chip { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent-2); }
+
+    .code {
+      border: 1px solid #2d3748;
+      border-radius: 7px;
+      background: #0d1118;
+      padding: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: #aac3f7;
+      white-space: pre-wrap;
+    }
+
+    .two-rows {
+      display: grid;
+      gap: 12px;
+      grid-template-rows: 1fr 1fr;
+      min-height: 0;
+    }
+
+    .launchpad {
+      position: absolute;
+      top: 58px;
+      left: 16px;
+      width: 300px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f141ddd;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      padding: 10px;
+      z-index: 20;
+      display: none;
+    }
+
+    .launchpad.open { display: block; }
+
+    .launch-title {
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .app-list { list-style: none; display: grid; gap: 6px; }
+
+    .app-btn {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #161d28;
+      color: var(--text);
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hint-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--hint);
+      display: inline-block;
+      margin-right: 7px;
+    }
+
+    a.link { color: #93bbff; text-decoration: none; }
+    a.link:hover { text-decoration: underline; }
+
+    @media (max-width: 1100px) {
+      .workspace-view,
+      .workspace-view.active {
+        display: none;
+      }
+
+      .workspace-view.active.mobile {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cards { grid-template-columns: 1fr; }
+      .waybar { grid-template-columns: 1fr auto; height: auto; row-gap: 8px; padding: 8px; }
+      .bar-mid { display: none; }
+      .bar-right { justify-content: flex-start; flex-wrap: wrap; }
+      .hints { display: none; }
+    }
+  </style>
 </head>
 <body>
-
-<nav class="waybar">
-  <div class="wb-left">
-    <a href="#" class="wb-logo">AndaOS</a>
-    <div class="wb-workspaces">
-      <div class="wb-ws active" title="Workspace 1 — Hero"></div>
-      <div class="wb-ws occupied" title="Workspace 2 — Philosophy"></div>
-      <div class="wb-ws occupied" title="Workspace 3 — Features"></div>
-      <div class="wb-ws occupied" title="Workspace 4 — Install"></div>
-      <div class="wb-ws" title="Workspace 5 — Docs"></div>
+  <div class="boot" id="bootScreen">
+    <div class="boot-box">
+      <div class="boot-title">booting into andaos / hyprland session</div>
+      <ul class="boot-log" id="bootLog">
+        <li>mounting virtual filesystems…</li>
+        <li>starting display manager…</li>
+        <li>loading hyprland + waybar…</li>
+        <li>spawning shell windows…</li>
+        <li>setting anda egg wallpaper…</li>
+        <li>session ready</li>
+      </ul>
+      <div class="boot-progress"><span id="bootProgress"></span></div>
     </div>
-    <nav class="wb-nav">
-      <a href="#philosophy">Philosophy</a>
-      <a href="#whats-in">Features</a>
-      <a href="#install">Install</a>
-      <a href="#docs">Docs</a>
-      <a href="https://github.com/hello2himel/andaos">GitHub</a>
+  </div>
+
+  <div class="desktop" id="desktop">
+    <div class="wallpaper" aria-hidden="true">
+      <svg viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" role="img">
+        <title>AndaOS egg wallpaper</title>
+        <path d="M 102 180 C 70 172, 50 157, 54 140 C 58 120, 78 110, 98 114 C 110 98, 128 90, 150 94 C 164 80, 190 78, 202 92 C 222 84, 244 92, 250 110 C 266 114, 274 132, 264 150 C 270 164, 258 176, 242 180 Z" fill="#f7f2e7" opacity="0.94"/>
+        <path d="M 112 158 C 92 150, 84 137, 92 126 C 100 116, 118 114, 132 120" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.35" stroke-linecap="round"/>
+        <circle cx="164" cy="143" r="35" fill="#b8720a" opacity="0.35"/>
+        <circle cx="162" cy="140" r="36" fill="#c47a0a"/>
+        <circle cx="162" cy="140" r="32" fill="#d4890a"/>
+        <circle cx="162" cy="140" r="28" fill="#e8a830"/>
+        <circle cx="162" cy="140" r="24" fill="#f5c842"/>
+        <ellipse cx="152" cy="129" rx="9" ry="5.5" fill="#ffffff" opacity="0.28" transform="rotate(-18 152 129)"/>
+        <circle cx="158" cy="133" r="2.5" fill="#ffffff" opacity="0.2"/>
+      </svg>
+    </div>
+
+    <nav class="waybar" aria-label="Waybar">
+      <div class="bar-left">
+        <button class="launch-btn" id="launcherToggle"><i class="ri-menu-line"></i> wofi</button>
+        <a class="logo" href="#">AndaOS</a>
+        <button class="workspace-btn active" data-workspace="1" title="Main">1</button>
+        <button class="workspace-btn" data-workspace="2" title="Install">2</button>
+        <button class="workspace-btn" data-workspace="3" title="Docs">3</button>
+      </div>
+      <div class="bar-mid">
+        <div class="pill"><i class="ri-layout-2-line"></i> hyprland</div>
+        <div class="pill"><i class="ri-terminal-window-line"></i> waybar / wofi / windows</div>
+      </div>
+      <div class="bar-right">
+        <a class="quick" href="https://github.com/hello2himel/andaos/releases"><i class="ri-download-2-line"></i> ISO</a>
+        <a class="quick" href="https://github.com/hello2himel/andaos"><i class="ri-github-line"></i> Source</a>
+        <span class="clock" id="clock">00:00</span>
+      </div>
     </nav>
-  </div>
-  <div class="wb-right">
-    <div class="wb-pill"><i class="ri-layout-2-line"></i> Hyprland</div>
-    <div class="wb-pill accent"><i class="ri-leaf-line"></i> No telemetry</div>
-    <div class="wb-sep"></div>
-    <span class="wb-clock" id="wbClock">00:00</span>
-    <div class="wb-sep"></div>
-    <button class="wb-theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
-      <i id="themeIcon" class="ri-sun-line"></i>
-    </button>
-    <a href="https://github.com/hello2himel/andaos/releases" class="wb-dl">
-      <i class="ri-download-2-line"></i> Download
-    </a>
-  </div>
-</nav>
 
-<div class="desktop">
+    <aside class="launchpad" id="launchpad">
+      <div class="launch-title">wofi launcher</div>
+      <ul class="app-list">
+        <li><button class="app-btn" data-open-workspace="1"><i class="ri-home-4-line"></i> Home workspace</button></li>
+        <li><button class="app-btn" data-open-workspace="2"><i class="ri-hard-drive-2-line"></i> Install workspace</button></li>
+        <li><button class="app-btn" data-open-workspace="3"><i class="ri-book-open-line"></i> Docs workspace</button></li>
+        <li><a class="app-btn" href="https://github.com/hello2himel/andaos/issues"><i class="ri-bug-line"></i> Report an issue</a></li>
+      </ul>
+    </aside>
 
-  <!-- HERO WORKSPACE -->
-  <div class="workspace-hero">
-
-    <div class="win reveal" style="display:flex;flex-direction:column;">
-      <div class="win-bar">
-        <div class="win-dots">
-          <div class="win-dot close"></div>
-          <div class="win-dot min"></div>
-          <div class="win-dot max"></div>
-        </div>
-        <div class="win-title">andaos — bash — 80×24</div>
-      </div>
-      <div class="win-body" style="flex:1">
-        <p class="hero-tag"><i class="ri-arch-linux-line"></i> Arch Linux · Hyprland · Rolling</p>
-        <h1 class="hero-h1">
-          <span class="line">Arch.</span>
-          <span class="line-accent">Without</span>
-          <span class="line">the pain.</span>
-        </h1>
-        <p class="hero-desc">AndaOS is a pre-configured Arch base that gets out of your way. Hyprland, no bloat, full Arch access. Boot. Configure. Own it.</p>
-        <div class="hero-actions">
-          <a href="https://github.com/hello2himel/andaos/releases" class="btn-main"><i class="ri-download-2-line"></i> Download ISO</a>
-          <a href="https://github.com/hello2himel/andaos" class="btn-ghost"><i class="ri-github-line"></i> Source</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="win hero-egg reveal" style="transition-delay:.1s;display:flex;flex-direction:column;">
-      <div class="win-bar">
-        <div class="win-dots">
-          <div class="win-dot close"></div>
-          <div class="win-dot min"></div>
-          <div class="win-dot max"></div>
-        </div>
-        <div class="win-title">anda.png — Image Viewer</div>
-      </div>
-      <div class="win-body" style="flex:1">
-        <svg class="egg-svg" viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg" role="img">
-          <title>AndaOS — egg on a pan</title>
-          <!-- pan shadow -->
-          <ellipse cx="160" cy="232" rx="136" ry="18" fill="#3b2507" opacity="0.15"/>
-          <!-- pan body -->
-          <rect x="24" y="182" width="272" height="52" rx="26" fill="#4a3018"/>
-          <rect x="24" y="182" width="272" height="28" rx="26" fill="#5c3c1c"/>
-          <!-- pan handle -->
-          <rect x="284" y="194" width="76" height="16" rx="8" fill="#3b2507"/>
-          <rect x="286" y="196" width="72" height="9" rx="4" fill="#5c3c1c"/>
-          <!-- pan inner rim -->
-          <ellipse cx="160" cy="186" rx="116" ry="12" fill="#6e4822"/>
-          <ellipse cx="160" cy="184" rx="110" ry="9" fill="#7a5228"/>
-          <!-- egg white — organic blob -->
-          <path d="M 102 180 C 70 172, 50 157, 54 140 C 58 120, 78 110, 98 114 C 110 98, 128 90, 150 94 C 164 80, 190 78, 202 92 C 222 84, 244 92, 250 110 C 266 114, 274 132, 264 150 C 270 164, 258 176, 242 180 Z" fill="#f5ede0" opacity="0.96"/>
-          <!-- egg white inner sheen -->
-          <path d="M 112 158 C 92 150, 84 137, 92 126 C 100 116, 118 114, 132 120" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.32" stroke-linecap="round"/>
-          <!-- yolk shadow -->
-          <circle cx="164" cy="143" r="35" fill="#b8720a" opacity="0.4"/>
-          <!-- yolk layers -->
-          <circle cx="162" cy="140" r="36" fill="#c47a0a"/>
-          <circle cx="162" cy="140" r="32" fill="#d4890a"/>
-          <circle cx="162" cy="140" r="28" fill="#e8a830"/>
-          <circle cx="162" cy="140" r="24" fill="#f5c842"/>
-          <!-- yolk highlight -->
-          <ellipse cx="152" cy="129" rx="9" ry="5.5" fill="#ffffff" opacity="0.26" transform="rotate(-18 152 129)"/>
-          <circle cx="158" cy="133" r="2.5" fill="#ffffff" opacity="0.16"/>
-          <!-- pan rim overlap -->
-          <ellipse cx="160" cy="186" rx="116" ry="6" fill="#6e4822" opacity="0.2"/>
-          <!-- pepper -->
-          <circle cx="110" cy="155" r="1.8" fill="#3b2507" opacity="0.45"/>
-          <circle cx="203" cy="163" r="1.5" fill="#3b2507" opacity="0.38"/>
-          <circle cx="133" cy="168" r="1.5" fill="#3b2507" opacity="0.38"/>
-          <circle cx="194" cy="148" r="1.8" fill="#3b2507" opacity="0.32"/>
-          <circle cx="122" cy="143" r="1.3" fill="#3b2507" opacity="0.3"/>
-          <!-- steam -->
-          <path d="M 138 90 Q 134 78 138 66 Q 142 54 138 42" stroke="#a89880" stroke-width="1.5" fill="none" opacity="0.28" stroke-linecap="round"/>
-          <path d="M 162 84 Q 158 72 162 60 Q 166 48 162 36" stroke="#a89880" stroke-width="1.5" fill="none" opacity="0.22" stroke-linecap="round"/>
-          <path d="M 186 90 Q 182 78 186 66 Q 190 54 186 42" stroke="#a89880" stroke-width="1.5" fill="none" opacity="0.28" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="egg-stats">
-        <div class="egg-stat"><span class="egg-stat-val">~1.5G</span><span class="egg-stat-key">ISO</span></div>
-        <div class="egg-stat"><span class="egg-stat-val">&lt;20s</span><span class="egg-stat-key">Boot</span></div>
-        <div class="egg-stat"><span class="egg-stat-val">&lt;500M</span><span class="egg-stat-key">RAM</span></div>
-        <div class="egg-stat"><span class="egg-stat-val">Zero</span><span class="egg-stat-key">Telemetry</span></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- PHILOSOPHY -->
-  <div class="workspace" id="philosophy">
-    <div class="workspace-label">Philosophy</div>
-    <h2 class="section-h">Every package earns its place.</h2>
-    <div class="tiling-grid">
-      <div class="tile reveal"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">boot_and_work.conf</div></div><div class="tile-body"><div class="tile-num">01</div><div class="tile-title">Boot and work</div><p class="tile-desc">Hyprland configured with sensible defaults. No week of dotfile archaeology before you can open a browser.</p></div></div>
-      <div class="tile reveal" style="transition-delay:.06s"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">nothing_hidden.conf</div></div><div class="tile-body"><div class="tile-num">02</div><div class="tile-title">Nothing hidden</div><p class="tile-desc">Every package, every config documented. You know exactly what's running and why it's there.</p></div></div>
-      <div class="tile reveal" style="transition-delay:.12s"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">arch_access.conf</div></div><div class="tile-body"><div class="tile-num">03</div><div class="tile-title">Full Arch access</div><p class="tile-desc">Official repos, AUR, the entire Arch wiki. Pure Arch underneath — just pre-assembled.</p></div></div>
-      <div class="tile reveal" style="transition-delay:.18s"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">ownership.conf</div></div><div class="tile-body"><div class="tile-num">04</div><div class="tile-title">You own it</div><p class="tile-desc">No forced updates, no lock-in. Your machine does what you say, not what we decided.</p></div></div>
-      <div class="tile reveal" style="transition-delay:.24s"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">reproducible.conf</div></div><div class="tile-body"><div class="tile-num">05</div><div class="tile-title">Reproducible</div><p class="tile-desc">Build identical ISOs from source using standard ArchISO. Fork it, change it, ship it.</p></div></div>
-      <div class="tile reveal" style="transition-delay:.30s"><div class="tile-bar"><div class="tile-bar-dot"></div><div class="tile-bar-title">no_bloat.conf</div></div><div class="tile-body"><div class="tile-num">06</div><div class="tile-title">No bloat</div><p class="tile-desc">Fast boot, low memory, responsive desktop — by refusing to add things you don't need.</p></div></div>
-    </div>
-  </div>
-
-  <!-- WHAT'S IN / OUT -->
-  <div class="workspace" id="whats-in">
-    <div class="workspace-label">Contents</div>
-    <h2 class="section-h">What ships. What doesn't.</h2>
-    <div class="split-win reveal">
-      <div class="split-pane">
-        <div class="split-pane-title"><i class="ri-check-double-line"></i> Included</div>
-        <ul class="split-list">
-          <li><i class="ri-check-line"></i>Hyprland + Waybar, pre-configured</li>
-          <li><i class="ri-check-line"></i>Firefox with privacy defaults</li>
-          <li><i class="ri-check-line"></i>PipeWire + Wireplumber audio</li>
-          <li><i class="ri-check-line"></i>NetworkManager + applet</li>
-          <li><i class="ri-check-line"></i>nano, vim, git, htop, btop</li>
-          <li><i class="ri-check-line"></i>Full firmware & hardware support</li>
-          <li><i class="ri-check-line"></i>Bluetooth with GUI controls</li>
-          <li><i class="ri-check-line"></i>Archive support (zip, tar, 7z)</li>
-        </ul>
-      </div>
-      <div class="split-pane out">
-        <div class="split-pane-title"><i class="ri-close-circle-line"></i> Not included</div>
-        <ul class="split-list">
-          <li><i class="ri-close-line"></i>Office suites — install if needed</li>
-          <li><i class="ri-close-line"></i>Dev environments — add your stack</li>
-          <li><i class="ri-close-line"></i>Gaming platforms — AUR has them</li>
-          <li><i class="ri-close-line"></i>Telemetry of any kind</li>
-          <li><i class="ri-close-line"></i>Background services that do nothing</li>
-          <li><i class="ri-close-line"></i>Software you'll never open</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- HARDWARE -->
-  <div class="workspace">
-    <div class="workspace-label">Hardware</div>
-    <h2 class="section-h">Runs on anything 64-bit.</h2>
-    <div class="req-win reveal">
-      <div class="req-win-bar">
-        <div class="win-dots"><div class="win-dot close"></div><div class="win-dot min"></div><div class="win-dot max"></div></div>
-        <div class="win-title">neofetch — system requirements</div>
-      </div>
-      <div class="req-panels">
-        <div class="req-panel">
-          <div class="req-panel-title">Minimum</div>
-          <ul class="req-list">
-            <li><strong>CPU</strong> x86_64</li>
-            <li><strong>RAM</strong> 2 GB</li>
-            <li><strong>Disk</strong> 10 GB</li>
-            <li><strong>Boot</strong> BIOS / UEFI</li>
-          </ul>
-        </div>
-        <div class="req-panel">
-          <div class="req-panel-title">Recommended</div>
-          <ul class="req-list">
-            <li><strong>CPU</strong> Dual-core+</li>
-            <li><strong>RAM</strong> 4 GB</li>
-            <li><strong>Disk</strong> 20 GB SSD</li>
-            <li><strong>Boot</strong> UEFI (Secure Boot off)</li>
-          </ul>
-        </div>
-        <div class="req-panel">
-          <div class="req-panel-title">Tested GPUs</div>
-          <ul class="req-list">
-            <li>Intel integrated</li>
-            <li>AMD Radeon</li>
-            <li>NVIDIA (nouveau + prop.)</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- INSTALL -->
-  <div class="workspace" id="install">
-    <div class="workspace-label">Installation</div>
-    <h2 class="section-h">Three steps.</h2>
-    <div class="install-layout">
-
-      <div class="install-win reveal">
-        <div class="install-win-bar">
-          <div class="install-win-icon"><i class="ri-usb-line"></i></div>
-          <div class="install-win-title">Write to USB</div>
-          <div class="install-win-sub">Step 01 · ~2 min</div>
-        </div>
-        <div class="install-win-body">
-          <p class="install-desc">Download the ISO and flash it. Use <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;">dd</code> on Linux/macOS, or Rufus on Windows.</p>
-          <div class="code-wrap">
-            <div class="code-header">
-              <div class="code-dots"><div class="code-dot-s"></div><div class="code-dot-s"></div><div class="code-dot-s"></div></div>
-              <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+    <div class="workspace-stage">
+      <section class="workspace-view active mobile" data-workspace-view="1">
+        <article class="window">
+          <div class="window-bar">
+            <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            terminal — overview
+          </div>
+          <div class="window-body">
+            <h1>inside AndaOS</h1>
+            <p>This page now behaves like a live desktop: workspace switching, floating windows, waybar controls, and quick launch via wofi.</p>
+            <p class="mono">use workspace dots in waybar · use wofi menu for quick navigation</p>
+            <div class="stats">
+              <div class="stat"><b>~1.5GB</b><span>iso size</span></div>
+              <div class="stat"><b>&lt;20s</b><span>boot target</span></div>
+              <div class="stat"><b>&lt;500MB</b><span>idle ram</span></div>
+              <div class="stat"><b>0</b><span>telemetry</span></div>
             </div>
-            <div class="code"><span class="code-comment"># Linux / macOS</span>
-<span class="code-cmd">sudo dd bs=4M if=andaos-*.iso of=/dev/sdX \
-     status=progress oflag=sync</span>
-
-<span class="code-comment"># Verify checksum</span>
-<span class="code-cmd">sha256sum -c SHA256SUMS</span></div>
+            <div class="code">$ pacman -Syu
+$ fastfetch
+$ git clone https://github.com/hello2himel/andaos</div>
           </div>
-        </div>
-      </div>
+        </article>
 
-      <div class="install-win reveal" style="transition-delay:.08s">
-        <div class="install-win-bar">
-          <div class="install-win-icon"><i class="ri-restart-line"></i></div>
-          <div class="install-win-title">Boot from USB</div>
-          <div class="install-win-sub">Step 02 · ~1 min</div>
-        </div>
-        <div class="install-win-body">
-          <p class="install-desc">Restart and select the USB in the boot menu. Disable Secure Boot if needed. Live Hyprland desktop loads — no password.</p>
-          <div class="install-note">
-            <i class="ri-information-line"></i>
-            <span>Boot menu shortcut is usually <code>F12</code>, <code>F11</code>, or <code>Del</code>.</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="install-win wide reveal" style="transition-delay:.16s">
-        <div class="install-win-bar">
-          <div class="install-win-icon"><i class="ri-hard-drive-2-line"></i></div>
-          <div class="install-win-title">Install to disk</div>
-          <div class="install-win-sub">Step 03 · ~10 min · Standard Arch</div>
-        </div>
-        <div class="install-win-body">
-          <p class="install-desc">Pure Arch underneath. Partition, pacstrap, configure. No magic installer — just the Arch way. Everything is transparent.</p>
-          <div class="code-wrap">
-            <div class="code-header">
-              <div class="code-dots"><div class="code-dot-s"></div><div class="code-dot-s"></div><div class="code-dot-s"></div></div>
-              <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+        <div class="two-rows">
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              settings — philosophy
             </div>
-            <div class="code"><span class="code-comment"># 1. Partition your disk</span>
-<span class="code-cmd">cfdisk /dev/sda</span>
+            <div class="window-body">
+              <h3>every package earns its place</h3>
+              <div class="cards">
+                <div class="card"><strong>minimal</strong>only essentials out of the box.</div>
+                <div class="card"><strong>transparent</strong>you can inspect every file and package.</div>
+                <div class="card"><strong>predictable</strong>follows Arch behavior and standards.</div>
+                <div class="card"><strong>yours</strong>no lock-in or forced vendor workflows.</div>
+              </div>
+            </div>
+          </article>
 
-<span class="code-comment"># 2. Format and mount</span>
-<span class="code-cmd">mkfs.ext4 /dev/sda1 && mount /dev/sda1 /mnt</span>
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              quick panel — includes / excludes
+            </div>
+            <div class="window-body">
+              <ul class="panel-list">
+                <li><span>Hyprland + Waybar preconfigured</span><span class="chip">included</span></li>
+                <li><span>Firefox + NetworkManager + PipeWire</span><span class="chip">included</span></li>
+                <li><span>Office suites & heavy bundles</span><span class="chip">not included</span></li>
+                <li><span>Telemetry / forced services</span><span class="chip">not included</span></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
 
-<span class="code-comment"># 3. Install base system</span>
-<span class="code-cmd">pacstrap /mnt base linux hyprland networkmanager</span>
-
-<span class="code-comment"># 4. Generate fstab and chroot</span>
-<span class="code-cmd">genfstab -U /mnt >> /mnt/etc/fstab && arch-chroot /mnt</span></div>
+      <section class="workspace-view mobile" data-workspace-view="2">
+        <article class="window">
+          <div class="window-bar">
+            <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            install workflow
           </div>
-          <div class="install-note" style="margin-top:12px">
-            <i class="ri-book-open-line"></i>
-            <span>New to Arch? The <a href="https://wiki.archlinux.org/title/Installation_guide">official installation guide</a> covers every step.</span>
+          <div class="window-body">
+            <h2>install in three simple windows</h2>
+            <ol>
+              <li>Flash ISO to USB (<span class="mono">dd / Rufus / Etcher</span>).</li>
+              <li>Boot into live AndaOS session.</li>
+              <li>Follow standard Arch installation path.</li>
+            </ol>
+            <div class="code"># flash
+sudo dd bs=4M if=andaos-*.iso of=/dev/sdX status=progress oflag=sync
+
+# verify
+sha256sum -c SHA256SUMS
+
+# install base
+pacstrap /mnt base linux hyprland networkmanager</div>
           </div>
+        </article>
+
+        <div class="two-rows">
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              requirements
+            </div>
+            <div class="window-body">
+              <ul class="panel-list">
+                <li><span>CPU</span><span class="chip">x86_64</span></li>
+                <li><span>RAM</span><span class="chip">2GB min / 4GB rec</span></li>
+                <li><span>Storage</span><span class="chip">10GB min</span></li>
+                <li><span>Boot</span><span class="chip">UEFI or BIOS</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              release channel
+            </div>
+            <div class="window-body">
+              <p>Rolling release, always current with Arch packages.</p>
+              <p><a class="link" href="https://github.com/hello2himel/andaos/releases">Open Releases</a></p>
+            </div>
+          </article>
         </div>
-      </div>
+      </section>
 
-    </div>
-  </div>
-
-  <!-- DOWNLOAD -->
-  <div class="download-win reveal" id="download">
-    <div class="download-win-bar">
-      <div class="win-dots"><div class="win-dot close"></div><div class="win-dot min"></div><div class="win-dot max"></div></div>
-      <div class="win-title" style="color:#7a6a58;">andaos-releases — terminal</div>
-    </div>
-    <div class="download-win-body">
-      <div>
-        <div class="dl-h">Get<br><span>AndaOS.</span></div>
-        <div class="dl-sub"><i class="ri-loop-right-line"></i> Rolling release · Always current</div>
-      </div>
-      <a href="https://github.com/hello2himel/andaos/releases" class="btn-dl">
-        <i class="ri-download-2-line"></i> Download Latest ISO
-      </a>
-    </div>
-  </div>
-
-  <!-- DOCS -->
-  <div class="workspace" id="docs">
-    <div class="workspace-label">Documentation</div>
-    <h2 class="section-h">Everything you need.</h2>
-    <div class="docs-grid">
-      <a href="https://wiki.archlinux.org/title/Installation_guide" class="doc-tile reveal"><div class="doc-tile-icon"><i class="ri-book-open-line"></i></div><div class="doc-tile-title">Installation Guide</div><p class="doc-tile-desc">Full step-by-step install, following Arch standards.</p><div class="doc-tile-arrow">Read <i class="ri-arrow-right-line"></i></div></a>
-      <a href="https://github.com/hello2himel/andaos#building-from-source" class="doc-tile reveal" style="transition-delay:.05s"><div class="doc-tile-icon"><i class="ri-hammer-line"></i></div><div class="doc-tile-title">Build from Source</div><p class="doc-tile-desc">Custom ISO — change packages, branding, defaults.</p><div class="doc-tile-arrow">Build <i class="ri-arrow-right-line"></i></div></a>
-      <a href="https://wiki.archlinux.org" class="doc-tile reveal" style="transition-delay:.10s"><div class="doc-tile-icon"><i class="ri-earth-line"></i></div><div class="doc-tile-title">Arch Wiki</div><p class="doc-tile-desc">The most comprehensive Linux documentation. Your best resource.</p><div class="doc-tile-arrow">Browse <i class="ri-arrow-right-line"></i></div></a>
-      <a href="https://github.com/hello2himel/andaos" class="doc-tile reveal" style="transition-delay:.15s"><div class="doc-tile-icon"><i class="ri-github-line"></i></div><div class="doc-tile-title">Source Code</div><p class="doc-tile-desc">Everything is open. Read it, fork it, question it.</p><div class="doc-tile-arrow">GitHub <i class="ri-arrow-right-line"></i></div></a>
-      <a href="https://github.com/hello2himel/andaos/issues" class="doc-tile reveal" style="transition-delay:.20s"><div class="doc-tile-icon"><i class="ri-bug-line"></i></div><div class="doc-tile-title">Report a Bug</div><p class="doc-tile-desc">Found something wrong? Open an issue. We'll fix it.</p><div class="doc-tile-arrow">Open issue <i class="ri-arrow-right-line"></i></div></a>
-      <a href="https://github.com/hello2himel/andaos/discussions" class="doc-tile reveal" style="transition-delay:.25s"><div class="doc-tile-icon"><i class="ri-discuss-line"></i></div><div class="doc-tile-title">Discussions</div><p class="doc-tile-desc">Questions, tips, and conversation with other users.</p><div class="doc-tile-arrow">Join <i class="ri-arrow-right-line"></i></div></a>
-    </div>
-
-    <div class="build-win reveal" style="margin-top:12px">
-      <div class="build-win-bar">
-        <div class="win-dots"><div class="win-dot close"></div><div class="win-dot min"></div><div class="win-dot max"></div></div>
-        <div class="win-title">build.sh — andaos</div>
-      </div>
-      <div class="build-win-body">
-        <div class="code-wrap" style="margin-top:0">
-          <div class="code-header">
-            <div class="code-dots"><div class="code-dot-s"></div><div class="code-dot-s"></div><div class="code-dot-s"></div></div>
-            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy"><i class="ri-file-copy-line"></i></button>
+      <section class="workspace-view mobile" data-workspace-view="3">
+        <article class="window">
+          <div class="window-bar">
+            <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            docs browser
           </div>
-          <div class="code"><span class="code-comment"># Prerequisites</span>
-<span class="code-cmd">sudo pacman -S archiso git base-devel</span>
+          <div class="window-body">
+            <h2>Documentation and source</h2>
+            <ul class="panel-list">
+              <li><a class="link" href="https://wiki.archlinux.org/title/Installation_guide">Arch installation guide</a><span class="chip">wiki</span></li>
+              <li><a class="link" href="https://github.com/hello2himel/andaos#building-from-source">Build from source</a><span class="chip">readme</span></li>
+              <li><a class="link" href="https://github.com/hello2himel/andaos">Repository</a><span class="chip">github</span></li>
+              <li><a class="link" href="https://github.com/hello2himel/andaos/discussions">Community discussions</a><span class="chip">community</span></li>
+            </ul>
+            <div class="code">./build.sh --help
+./build.sh --auto-qemu
+./build.sh --no-qemu</div>
+          </div>
+        </article>
 
-<span class="code-comment"># Clone and build</span>
-<span class="code-cmd">git clone https://github.com/hello2himel/andaos.git && cd andaos</span>
-<span class="code-cmd">./build.sh</span>
+        <div class="two-rows">
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              fit check
+            </div>
+            <div class="window-body">
+              <h3>good fit</h3>
+              <ul>
+                <li>Arch users wanting fast setup</li>
+                <li>Developers preferring clean systems</li>
+                <li>Learners who want transparency</li>
+              </ul>
+              <h3 style="margin-top:12px">not a fit</h3>
+              <ul>
+                <li>Users wanting heavy preinstalled bundles</li>
+                <li>Users avoiding command-line tools entirely</li>
+              </ul>
+            </div>
+          </article>
 
-<span class="code-comment"># Test in QEMU</span>
-<span class="code-cmd">qemu-system-x86_64 -enable-kvm -m 4096 -boot d -cdrom out/andaos-*.iso</span></div>
+          <article class="window">
+            <div class="window-bar">
+              <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              about
+            </div>
+            <div class="window-body">
+              <p class="mono">MIT licensed · community maintained</p>
+              <p>Not affiliated with Arch Linux.</p>
+              <p><a class="link" href="https://github.com/hello2himel/andaos/issues">Open issue tracker</a></p>
+            </div>
+          </article>
         </div>
-        <p class="build-note">Edit <code>packages.x86_64</code> · <code>airootfs/etc/skel/</code> for user configs · <code>airootfs/etc/os-release</code> for branding</p>
-      </div>
+      </section>
+    </div>
+
+    <div class="hints">
+      <div><span class="hint-dot"></span>click <b>1 / 2 / 3</b> in waybar to switch workspaces</div>
+      <div><span class="hint-dot"></span>click <b>wofi</b> to open launcher</div>
+      <div><span class="hint-dot"></span>open windows to browse settings, docs, install info</div>
     </div>
   </div>
 
-  <!-- FOR WHO -->
-  <div class="workspace">
-    <div class="workspace-label">Audience</div>
-    <h2 class="section-h">Not for everyone. That's the point.</h2>
-    <div class="forwhom-grid">
-      <div class="fw-win reveal">
-        <div class="fw-win-bar">
-          <div class="win-dots"><div class="win-dot close"></div><div class="win-dot min"></div><div class="win-dot max"></div></div>
-          <div class="fw-win-bar-title">Good fit</div>
-        </div>
-        <div class="fw-win-body">
-          <ul class="fw-list">
-            <li><i class="ri-user-line"></i>Arch users wanting a pre-configured start</li>
-            <li><i class="ri-code-s-slash-line"></i>Developers who need a clean workspace</li>
-            <li><i class="ri-server-line"></i>Sysadmins deploying consistent environments</li>
-            <li><i class="ri-graduation-cap-line"></i>Students learning Linux from the ground up</li>
-            <li><i class="ri-shield-check-line"></i>Anyone who values knowing their system</li>
-          </ul>
-        </div>
-      </div>
-      <div class="fw-win bad reveal" style="transition-delay:.08s">
-        <div class="fw-win-bar">
-          <div class="win-dots"><div class="win-dot close"></div><div class="win-dot min"></div><div class="win-dot max"></div></div>
-          <div class="fw-win-bar-title">Bad fit</div>
-        </div>
-        <div class="fw-win-body">
-          <ul class="fw-list">
-            <li><i class="ri-close-circle-line"></i>Users expecting Ubuntu-style hand-holding</li>
-            <li><i class="ri-close-circle-line"></i>People who want everything pre-installed</li>
-            <li><i class="ri-close-circle-line"></i>Anyone uncomfortable with a terminal</li>
-            <li><i class="ri-close-circle-line"></i>Those needing commercial support</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+  <script>
+    const bootLines = [...document.querySelectorAll('#bootLog li')];
+    const bootProgress = document.getElementById('bootProgress');
+    const bootScreen = document.getElementById('bootScreen');
+    const desktop = document.getElementById('desktop');
 
-</div>
+    function runBoot() {
+      let step = 0;
+      const total = bootLines.length;
+      const timer = setInterval(() => {
+        if (step < total) {
+          bootLines[step].classList.add('done');
+          bootProgress.style.width = `${((step + 1) / total) * 100}%`;
+          step += 1;
+        } else {
+          clearInterval(timer);
+          bootScreen.classList.add('done');
+          desktop.classList.add('ready');
+        }
+      }, 350);
+    }
 
-<footer class="wfooter">
-  <div class="wf-left">AndaOS</div>
-  <div class="wf-mid">Keep it simple. Keep it stupid.</div>
-  <div class="wf-right">
-    <i class="ri-scales-line"></i> MIT License · Not affiliated with <a href="https://archlinux.org">Arch Linux</a><br>
-    Community maintained · <a href="https://github.com/hello2himel/andaos"><i class="ri-github-line"></i> GitHub</a>
-  </div>
-</footer>
+    const workspaceButtons = [...document.querySelectorAll('.workspace-btn')];
+    const workspaceViews = [...document.querySelectorAll('[data-workspace-view]')];
 
-<script>
-function updateClock() {
-  const now = new Date();
-  const el = document.getElementById('wbClock');
-  if (el) el.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-}
-updateClock();
-setInterval(updateClock, 10000);
+    function openWorkspace(id) {
+      workspaceButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.workspace === id));
+      workspaceViews.forEach(view => {
+        const isActive = view.dataset.workspaceView === id;
+        view.classList.toggle('active', isActive);
+        view.classList.toggle('mobile', isActive);
+      });
+      document.getElementById('launchpad').classList.remove('open');
+    }
 
-const observer = new IntersectionObserver(
-  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-  { threshold: 0.08, rootMargin: '0px 0px -28px 0px' }
-);
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    workspaceButtons.forEach(btn => {
+      btn.addEventListener('click', () => openWorkspace(btn.dataset.workspace));
+    });
 
-function setThemeIcon(isDark) {
-  const icon = document.getElementById('themeIcon');
-  if (icon) icon.className = isDark ? 'ri-sun-line' : 'ri-moon-line';
-}
+    document.querySelectorAll('[data-open-workspace]').forEach(btn => {
+      btn.addEventListener('click', () => openWorkspace(btn.dataset.openWorkspace));
+    });
 
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const next = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('anda-theme', next);
-  setThemeIcon(next === 'dark');
-}
+    const launcherToggle = document.getElementById('launcherToggle');
+    const launchpad = document.getElementById('launchpad');
+    launcherToggle.addEventListener('click', () => launchpad.classList.toggle('open'));
 
-(function() {
-  const saved = localStorage.getItem('anda-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = saved || (prefersDark ? 'dark' : 'light');
-  document.documentElement.setAttribute('data-theme', theme);
-  document.addEventListener('DOMContentLoaded', () => setThemeIcon(theme === 'dark'));
-})();
+    document.addEventListener('click', (event) => {
+      if (!launchpad.contains(event.target) && !launcherToggle.contains(event.target)) {
+        launchpad.classList.remove('open');
+      }
+    });
 
-function copyCode(btn) {
-  const codeEl = btn.closest('.code-wrap').querySelector('.code');
-  navigator.clipboard.writeText(codeEl.innerText).then(() => {
-    const icon = btn.querySelector('i');
-    icon.className = 'ri-check-line';
-    btn.classList.add('copied');
-    setTimeout(() => { icon.className = 'ri-file-copy-line'; btn.classList.remove('copied'); }, 2000);
-  });
-}
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
-// workspace dots scroll
-const wsDots = document.querySelectorAll('.wb-ws');
-const wsTargets = ['#', '#philosophy', '#whats-in', '#install', '#docs'];
-wsDots.forEach((dot, i) => {
-  dot.addEventListener('click', () => {
-    if (wsTargets[i] === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-    const el = document.querySelector(wsTargets[i]);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-});
-</script>
+    updateClock();
+    setInterval(updateClock, 1000);
+    runBoot();
+  </script>
 </body>
 </html>
