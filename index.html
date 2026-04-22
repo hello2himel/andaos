@@ -7,898 +7,1111 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+/* ══════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════ */
 :root{
-  --yolk:#f5c842;--butter:#e8a830;--char:#1a1510;--egg:#f5ede0;
-  --muted:#a89880;--rule:#3b2e1e;--surface:#241c12;--surface2:#2e2416;
-  --red:#e05c50;--green:#7ec86e;--blue:#6eb4c8;
-  --win-border:#3b2e1e;--win-active:#f5c842;--radius:8px;
-  --shadow:0 8px 32px rgba(0,0,0,0.7);
-  --font-mono:'IBM Plex Mono',monospace;
-  --font-sans:'IBM Plex Sans',sans-serif;
-  --font-display:'Bebas Neue',sans-serif;
+  --y:#f5c842; --b:#e8a830; --ch:#1a1510; --eg:#f5ede0;
+  --mu:#a89880; --ru:#3b2e1e; --sf:#241c12; --s2:#2e2416;
+  --re:#e05c50; --gr:#7ec86e;
+  --wb:#1e1710; /* waybar bg */
+  --cb:#0d0a07; /* code/terminal bg */
 }
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--font-mono);}
+[data-theme="light"]{
+  --ch:#f5ede0; --eg:#3b2507; --mu:#8a6a3a; --ru:#e0c89a;
+  --sf:#eee3cc; --s2:#e6d8bc; --wb:#eee3cc; --y:#e8a830; --b:#d4890a;
+  --cb:#2a1c0e;
+}
 
-/* ═══════════ BOOT SCREEN ═══════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;}
+
+/* ══════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════ */
 #boot{
   position:fixed;inset:0;background:#000;z-index:9999;
   display:flex;flex-direction:column;justify-content:center;align-items:center;
-  transition:opacity 0.8s ease;
+  gap:0;transition:opacity .7s;
 }
-#boot.fade-out{opacity:0;pointer-events:none;}
+#boot.out{opacity:0;pointer-events:none;}
+.bl{font-size:10px;color:#444;line-height:1.8;width:520px;max-width:90vw;}
+.bl .ok{color:var(--gr);}
+.bl .w{color:var(--y);}
+.bl span{display:block;opacity:0;animation:fi .05s ease forwards;}
+@keyframes fi{to{opacity:1;}}
+.b-bar-w{width:320px;max-width:80vw;height:2px;background:#222;margin-top:28px;border-radius:1px;}
+.b-bar{height:100%;width:0;background:var(--y);transition:width .08s linear;border-radius:1px;}
+.b-logo{font-family:'Bebas Neue',sans-serif;font-size:64px;letter-spacing:6px;color:var(--y);
+  margin-bottom:4px;animation:glow 1.4s ease-in-out infinite;}
+@keyframes glow{0%,100%{text-shadow:0 0 20px #f5c84255;}50%{text-shadow:0 0 40px #f5c842aa;}}
+.b-sub{font-size:10px;color:#444;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px;}
 
-.boot-logo{
-  font-family:var(--font-display);font-size:72px;letter-spacing:6px;
-  color:var(--yolk);margin-bottom:8px;
-  animation:pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
-
-.boot-sub{
-  font-size:11px;color:var(--muted);letter-spacing:3px;
-  text-transform:uppercase;margin-bottom:48px;
-}
-
-.boot-log{
-  width:480px;max-width:90vw;height:160px;overflow:hidden;
-  font-size:11px;color:#555;line-height:1.7;
-}
-.boot-log .ok{color:var(--green);}
-.boot-log .line{opacity:0;animation:fadein 0.1s ease forwards;}
-@keyframes fadein{to{opacity:1;}}
-
-.boot-bar-wrap{
-  width:320px;max-width:80vw;height:3px;background:var(--rule);
-  margin-top:32px;border-radius:2px;overflow:hidden;
-}
-.boot-bar{height:100%;width:0%;background:var(--yolk);transition:width 0.1s linear;}
-
-.boot-user{
-  margin-top:28px;font-size:13px;color:var(--egg);opacity:0;
-  transition:opacity 0.5s;
-}
-.boot-user.show{opacity:1;}
-.boot-cursor{display:inline-block;width:8px;height:13px;background:var(--yolk);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px;}
-@keyframes blink{50%{opacity:0;}}
-
-/* ═══════════ DESKTOP ═══════════ */
-#desktop{
-  position:fixed;inset:0;
-  background:var(--char);
+/* ══════════════════════════════════════════
+   DESKTOP SHELL
+══════════════════════════════════════════ */
+#desk{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  background:var(--ch);opacity:0;transition:opacity .7s;
   overflow:hidden;
-  opacity:0;transition:opacity 0.8s ease;
-  display:flex;flex-direction:column;
 }
-#desktop.visible{opacity:1;}
+#desk.on{opacity:1;}
 
-/* EGG WALLPAPER */
-#wallpaper{
+/* wallpaper */
+#wp{
   position:absolute;inset:0;z-index:0;
   display:flex;align-items:center;justify-content:center;
   pointer-events:none;
 }
-.wp-egg{width:min(60vh,60vw);opacity:0.07;filter:blur(1px);}
+.wp-svg{width:min(55vh,55vw);opacity:.06;filter:blur(.5px);}
 
-/* ═══════════ WAYBAR ═══════════ */
-#waybar{
-  position:relative;z-index:100;
-  height:36px;background:var(--surface);
-  border-bottom:1px solid var(--rule);
+/* ══════════════════════════════════════════
+   WAYBAR
+══════════════════════════════════════════ */
+#bar{
+  position:relative;z-index:200;
+  height:38px;
+  background:var(--wb);
+  border-bottom:1px solid var(--ru);
   display:flex;align-items:center;
-  padding:0 16px;gap:0;
+  padding:0 14px;
+  flex-shrink:0;
+  gap:8px;
+}
+
+/* left cluster */
+.bar-l{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+
+.bar-logo{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:var(--y);line-height:1;cursor:pointer;user-select:none;
+  transition:color .15s;
+}
+.bar-logo:hover{color:var(--b);}
+
+/* workspace dots */
+.ws-dots{display:flex;gap:5px;align-items:center;}
+.ws-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--ru);cursor:pointer;
+  transition:all .2s;border:1px solid transparent;
   flex-shrink:0;
 }
-.wb-left{display:flex;align-items:center;gap:12px;flex:1;}
-.wb-logo{font-family:var(--font-display);font-size:20px;letter-spacing:2px;color:var(--yolk);line-height:1;cursor:pointer;}
-.wb-logo:hover{color:var(--butter);}
+.ws-dot.act{background:var(--y);transform:scale(1.35);}
+.ws-dot.occ{background:var(--mu);}
+.ws-dot:hover{border-color:var(--y);}
 
-.wb-workspaces{display:flex;gap:5px;align-items:center;}
-.wb-ws{
-  width:7px;height:7px;border-radius:50%;background:var(--rule);
-  cursor:pointer;transition:all 0.2s;border:1px solid transparent;
+/* center — active window title */
+.bar-c{
+  display:flex;align-items:center;justify-content:center;
+  flex:1;min-width:0;
 }
-.wb-ws.active{background:var(--yolk);transform:scale(1.3);}
-.wb-ws.has-win{background:var(--muted);}
-.wb-ws:hover{border-color:var(--yolk);}
-
-.wb-center{flex:1;display:flex;justify-content:center;}
-.wb-window-title{
-  font-size:11px;color:var(--muted);letter-spacing:0.5px;
-  background:var(--surface2);border:1px solid var(--rule);
-  padding:3px 14px;border-radius:4px;
-  max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+.bar-wtitle{
+  font-size:11px;color:var(--mu);
+  background:var(--sf);border:1px solid var(--ru);
+  padding:2px 14px;border-radius:3px;
+  max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 
-.wb-right{display:flex;align-items:center;gap:6px;}
-.wb-pill{
-  display:flex;align-items:center;gap:4px;
-  background:var(--surface2);border:1px solid var(--rule);
-  border-radius:12px;padding:3px 10px;
-  font-size:10px;color:var(--muted);cursor:default;
+/* right cluster */
+.bar-r{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;}
+
+.bar-mod{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:var(--mu);
+  background:var(--sf);border:1px solid var(--ru);
+  border-radius:3px;padding:3px 9px;
+  cursor:default;white-space:nowrap;
 }
-.wb-pill i{font-size:11px;}
-.wb-pill.y{color:var(--yolk);border-color:var(--yolk);}
-.wb-pill.g{color:var(--green);}
-.wb-sep{width:1px;height:16px;background:var(--rule);margin:0 2px;}
-.wb-clock{font-size:12px;color:var(--egg);font-weight:600;min-width:42px;text-align:center;cursor:default;}
+.bar-mod i{font-size:11px;}
+.bar-mod.net i{color:var(--gr);}
+.bar-mod.vol i{color:var(--y);}
+.bar-mod.bat i{color:var(--gr);}
 
-.wb-btn{
-  background:transparent;border:1px solid var(--rule);border-radius:12px;
-  color:var(--muted);font-size:12px;cursor:pointer;padding:3px 8px;
-  display:flex;align-items:center;gap:4px;font-family:var(--font-mono);
-  transition:all 0.15s;
+.bar-sep{width:1px;height:18px;background:var(--ru);}
+
+.bar-clock{
+  font-size:12px;color:var(--eg);font-weight:600;
+  cursor:default;white-space:nowrap;letter-spacing:.5px;
 }
-.wb-btn:hover{border-color:var(--yolk);color:var(--yolk);}
-.wb-btn.accent{background:var(--yolk);color:var(--char);border-color:var(--yolk);font-weight:600;font-size:10px;padding:3px 12px;letter-spacing:0.5px;}
-.wb-btn.accent:hover{background:var(--butter);}
 
-/* ═══════════ WORKSPACE AREA ═══════════ */
-#ws-area{position:relative;flex:1;overflow:hidden;z-index:1;}
+.bar-btn{
+  background:var(--sf);border:1px solid var(--ru);border-radius:3px;
+  color:var(--mu);font-size:13px;cursor:pointer;padding:3px 7px;
+  display:flex;align-items:center;transition:all .15s;
+}
+.bar-btn:hover{border-color:var(--y);color:var(--y);}
 
-/* ═══════════ WINDOW ═══════════ */
-.window{
+.bar-dl{
+  background:var(--y);color:var(--ch);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  font-weight:600;text-transform:uppercase;letter-spacing:1px;
+  padding:4px 12px;border-radius:3px;text-decoration:none;
+  display:flex;align-items:center;gap:5px;transition:background .15s;
+  white-space:nowrap;border:1px solid var(--y);
+}
+.bar-dl:hover{background:var(--b);border-color:var(--b);}
+
+/* ══════════════════════════════════════════
+   WORKSPACE AREA
+══════════════════════════════════════════ */
+#wsa{position:relative;flex:1;overflow:hidden;z-index:1;}
+
+/* ══════════════════════════════════════════
+   WINDOW
+══════════════════════════════════════════ */
+.win{
   position:absolute;
-  min-width:280px;min-height:120px;
-  border:1px solid var(--win-border);
-  border-radius:var(--radius);
-  background:var(--surface);
-  box-shadow:var(--shadow);
+  min-width:260px;min-height:100px;
+  border:1px solid var(--ru);
+  border-radius:8px;
+  background:var(--sf);
+  box-shadow:0 8px 40px rgba(0,0,0,.75);
   display:flex;flex-direction:column;
-  transition:border-color 0.15s, box-shadow 0.15s, opacity 0.2s, transform 0.2s;
-  overflow:hidden;
-  user-select:none;
+  overflow:hidden;user-select:none;
+  transition:border-color .15s,box-shadow .15s,opacity .18s,transform .18s;
 }
-.window.active{
-  border-color:var(--win-active);
-  box-shadow:0 0 0 1px var(--win-active),var(--shadow);
+.win.act{
+  border-color:var(--y);
+  box-shadow:0 0 0 1px var(--y),0 8px 40px rgba(0,0,0,.75);
   z-index:50 !important;
 }
-.window.minimized{opacity:0;pointer-events:none;transform:scale(0.85);}
-.window.maximized{
-  top:0 !important;left:0 !important;
-  width:100% !important;height:100% !important;
-  border-radius:0;border-color:transparent;
+.win.gone{opacity:0;transform:scale(.88);pointer-events:none;}
+.win.mini{opacity:0;transform:scale(.85);pointer-events:none;}
+.win.maxi{
+  top:0!important;left:0!important;
+  width:100%!important;height:100%!important;
+  border-radius:0;border-color:transparent!important;
+  box-shadow:none!important;
 }
 
-.win-bar{
-  height:32px;background:var(--surface2);
-  border-bottom:1px solid var(--win-border);
+/* titlebar */
+.wbar{
+  height:30px;background:var(--s2);
+  border-bottom:1px solid var(--ru);
   display:flex;align-items:center;
-  padding:0 12px;gap:8px;
+  padding:0 10px;gap:8px;
   cursor:grab;flex-shrink:0;
 }
-.win-bar:active{cursor:grabbing;}
-.win-bar .win-dots{display:flex;gap:5px;}
-.win-bar .wd{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:filter 0.15s;}
-.win-bar .wd:hover{filter:brightness(1.3);}
-.wd.close{background:#e05c50;}
-.wd.min{background:var(--yolk);}
-.wd.max{background:var(--green);}
-.win-title{font-size:11px;color:var(--muted);flex:1;text-align:center;letter-spacing:0.3px;pointer-events:none;}
-.win-content{flex:1;overflow-y:auto;overflow-x:hidden;}
-.win-content::-webkit-scrollbar{width:4px;}
-.win-content::-webkit-scrollbar-track{background:var(--surface);}
-.win-content::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
-
-/* resize handle */
-.win-resize{
-  position:absolute;bottom:0;right:0;
-  width:14px;height:14px;cursor:se-resize;
-  background:transparent;
+.wbar:active{cursor:grabbing;}
+.wdots{display:flex;gap:5px;}
+.wd{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:filter .15s;}
+.wd:hover{filter:brightness(1.25);}
+.wd.cl{background:#e05c50;}
+.wd.mn{background:var(--y);}
+.wd.mx{background:var(--gr);}
+.wtitle{
+  font-size:10px;color:var(--mu);flex:1;text-align:center;
+  letter-spacing:.3px;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;gap:6px;
 }
-.win-resize::after{
+.wtitle i{font-size:11px;}
+
+/* content */
+.wcont{flex:1;overflow-y:auto;overflow-x:hidden;}
+.wcont::-webkit-scrollbar{width:3px;}
+.wcont::-webkit-scrollbar-thumb{background:var(--ru);border-radius:2px;}
+
+/* resize grip */
+.wgrip{
+  position:absolute;bottom:0;right:0;width:14px;height:14px;cursor:se-resize;
+}
+.wgrip::after{
   content:'';position:absolute;bottom:3px;right:3px;
   width:6px;height:6px;
-  border-right:2px solid var(--rule);border-bottom:2px solid var(--rule);
+  border-right:1.5px solid var(--ru);border-bottom:1.5px solid var(--ru);
   border-radius:1px;
 }
 
-/* ═══════════ WINDOW CONTENT STYLES ═══════════ */
-.wc{padding:20px 22px;font-size:13px;color:var(--muted);line-height:1.7;}
-.wc h1{font-family:var(--font-display);font-size:56px;line-height:1;letter-spacing:1px;color:var(--egg);margin-bottom:8px;}
-.wc h1 .yolk{color:var(--yolk);}
-.wc h2{font-family:var(--font-display);font-size:32px;letter-spacing:1px;color:var(--egg);margin-bottom:14px;line-height:1;}
-.wc h3{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--yolk);margin-bottom:12px;font-weight:600;}
-.wc p{margin-bottom:12px;font-size:13px;line-height:1.75;}
-.wc p strong{color:var(--egg);}
-.wc .tag{
-  display:inline-flex;align-items:center;gap:5px;
-  background:var(--surface2);border:1px solid var(--rule);
-  border-radius:4px;padding:3px 10px;font-size:10px;
-  color:var(--muted);text-transform:uppercase;letter-spacing:1px;
-  margin-bottom:16px;
+/* ══════════════════════════════════════════
+   WINDOW CONTENT — shared
+══════════════════════════════════════════ */
+.wc{padding:18px 20px;color:var(--mu);line-height:1.7;}
+.wc h1{
+  font-family:'Bebas Neue',sans-serif;font-size:60px;line-height:.95;
+  letter-spacing:1px;color:var(--eg);margin-bottom:6px;
 }
-.wc .tag i{color:var(--yolk);}
-.wc .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
-.wc-btn{
-  font-family:var(--font-mono);font-size:11px;text-transform:uppercase;
-  letter-spacing:1px;padding:9px 22px;text-decoration:none;
-  border-radius:5px;display:inline-flex;align-items:center;gap:6px;
-  transition:all 0.15s;border:1px solid;cursor:pointer;
+.wc h1 .inv{
+  display:inline-block;
+  color:var(--sf);background:var(--eg);
+  padding:0 6px;margin:0 2px;line-height:1.05;
 }
-.wc-btn.p{background:var(--yolk);color:var(--char);border-color:var(--yolk);}
-.wc-btn.p:hover{background:var(--butter);}
-.wc-btn.s{background:transparent;color:var(--muted);border-color:var(--rule);}
-.wc-btn.s:hover{color:var(--egg);border-color:var(--egg);}
+[data-theme="light"] .wc h1 .inv{color:var(--eg);background:var(--y);}
+.wc h2{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;
+  color:var(--eg);margin-bottom:14px;line-height:1;
+}
+.wc p{font-size:12px;line-height:1.8;margin-bottom:10px;}
+.wc .note{
+  font-size:11px;color:#5a4a38;font-style:italic;
+  border-left:2px solid var(--ru);padding-left:10px;margin-bottom:14px;
+}
+.wc .note strong{color:var(--mu);}
 
-/* about stats */
-.stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px;}
-.stat-box{background:var(--surface2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px;text-align:center;}
-.stat-box .val{font-family:var(--font-display);font-size:28px;color:var(--yolk);letter-spacing:1px;line-height:1;}
-.stat-box .key{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-top:2px;}
+/* stat grid */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:14px 0;}
+.sb{
+  background:var(--s2);border:1px solid var(--ru);border-radius:4px;
+  padding:10px 12px;text-align:center;
+}
+.sb .v{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--y);letter-spacing:1px;line-height:1;}
+.sb .k{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mu);margin-top:2px;}
 
-/* feature list */
-.feat-list{list-style:none;margin-top:4px;}
-.feat-list li{
-  padding:8px 0;border-bottom:1px solid var(--rule);
-  font-size:13px;display:flex;align-items:center;gap:9px;color:var(--muted);
-  transition:color 0.15s;
+/* buttons */
+.brow{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+.wb2{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:8px 18px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s;cursor:pointer;border:1px solid;text-decoration:none;
 }
-.feat-list li:last-child{border-bottom:none;}
-.feat-list li:hover{color:var(--egg);}
-.feat-list li i{font-size:13px;color:var(--yolk);flex-shrink:0;}
-.feat-list li i.x{color:var(--red);}
+.wb2.p{background:var(--y);color:var(--ch);border-color:var(--y);}
+.wb2.p:hover{background:var(--b);border-color:var(--b);}
+.wb2.s{background:transparent;color:var(--mu);border-color:var(--ru);}
+.wb2.s:hover{color:var(--eg);border-color:var(--eg);}
 
-/* section divider */
-.wc-divider{height:1px;background:var(--rule);margin:16px 0;}
-.wc-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.wc-label::after{content:'';flex:1;height:1px;background:var(--rule);}
+/* list */
+.fl{list-style:none;}
+.fl li{
+  padding:7px 0;border-bottom:1px solid var(--ru);
+  font-size:12px;display:flex;align-items:center;gap:8px;color:var(--mu);
+  transition:color .15s;
+}
+.fl li:last-child{border-bottom:none;}
+.fl li:hover{color:var(--eg);}
+.fl li i{font-size:12px;color:var(--y);flex-shrink:0;}
+.fl li i.x{color:var(--re);}
 
-/* code */
-.code-wrap{margin:10px 0;}
-.code-hd{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:6px 12px;background:#0d0a07;
-  border:1px solid #2a2018;border-bottom:none;border-radius:5px 5px 0 0;
+/* divider + label */
+.div{height:1px;background:var(--ru);margin:14px 0;}
+.lbl{
+  font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
 }
-.c-dots{display:flex;gap:5px;}
-.c-dot{width:8px;height:8px;border-radius:50%;background:#2a2018;}
-.cp-btn{
-  font-size:12px;color:#5a4a38;background:none;
-  border:1px solid #2a2018;padding:2px 7px;border-radius:3px;
-  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;
-}
-.cp-btn:hover{color:var(--yolk);border-color:var(--yolk);}
-.cp-btn.done{color:var(--green);border-color:var(--green);}
-.code-body{
-  background:#0d0a07;border:1px solid #2a2018;border-top:none;
-  border-radius:0 0 5px 5px;padding:12px 16px;
-  font-family:var(--font-mono);font-size:11px;line-height:1.9;
-  overflow-x:auto;color:#c8b89a;
-}
-.cc{color:#5a4a38;}
-.cm{color:var(--yolk);}
+.lbl::after{content:'';flex:1;height:1px;background:var(--ru);}
 
 /* philosophy tiles */
-.p-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.p-tile{background:var(--surface2);border:1px solid var(--rule);border-radius:5px;padding:14px;transition:border-color 0.2s;}
-.p-tile:hover{border-color:var(--yolk);}
-.p-tile-n{font-family:var(--font-display);font-size:28px;color:var(--rule);line-height:1;margin-bottom:6px;transition:color 0.2s;}
-.p-tile:hover .p-tile-n{color:var(--yolk);}
-.p-tile-t{font-size:12px;font-weight:500;color:var(--egg);margin-bottom:4px;}
-.p-tile-d{font-size:11px;color:var(--muted);line-height:1.6;}
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pt{
+  background:var(--s2);border:1px solid var(--ru);border-radius:4px;
+  padding:12px;transition:border-color .2s;
+}
+.pt:hover{border-color:var(--y);}
+.pt .n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--ru);line-height:1;margin-bottom:4px;transition:color .2s;}
+.pt:hover .n{color:var(--y);}
+.pt .t{font-size:11px;font-weight:500;color:var(--eg);margin-bottom:3px;}
+.pt .d{font-size:11px;color:var(--mu);line-height:1.5;}
+
+/* code */
+.cw{margin:10px 0;}
+.chd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 10px;background:var(--cb);
+  border:1px solid #2a2018;border-bottom:none;border-radius:4px 4px 0 0;
+}
+.cdots{display:flex;gap:4px;}
+.cdot{width:8px;height:8px;border-radius:50%;background:#2a2018;}
+.cpb{
+  font-size:12px;color:#5a4a38;background:none;
+  border:1px solid #2a2018;padding:2px 6px;border-radius:3px;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;
+}
+.cpb:hover{color:var(--y);border-color:var(--y);}
+.cpb.dn{color:var(--gr);border-color:var(--gr);}
+.cb2{
+  background:var(--cb);border:1px solid #2a2018;border-top:none;
+  border-radius:0 0 4px 4px;padding:10px 14px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9;
+  overflow-x:auto;color:#c8b89a;
+}
+.cc{color:#5a4a38;}.cm{color:var(--y);}
 
 /* install steps */
-.i-step{background:var(--surface2);border:1px solid var(--rule);border-radius:5px;margin-bottom:8px;overflow:hidden;}
-.i-step-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule);}
-.i-step-ico{width:22px;height:22px;background:var(--yolk);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--char);flex-shrink:0;}
-.i-step-title{font-size:12px;font-weight:600;color:var(--egg);}
-.i-step-sub{font-size:10px;color:var(--muted);margin-left:auto;}
-.i-step-body{padding:10px 14px;}
-.i-desc{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6;}
-.i-note{padding:8px 12px;background:var(--surface);border-left:2px solid var(--yolk);font-size:11px;color:var(--muted);line-height:1.6;display:flex;gap:6px;}
-.i-note i{color:var(--yolk);flex-shrink:0;margin-top:1px;}
-.i-note a{color:var(--egg);font-weight:600;}
+.ist{background:var(--s2);border:1px solid var(--ru);border-radius:4px;margin-bottom:8px;overflow:hidden;}
+.isth{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--ru);}
+.istic{width:20px;height:20px;background:var(--y);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ch);flex-shrink:0;}
+.istt{font-size:11px;font-weight:600;color:var(--eg);}
+.ists{font-size:9px;color:var(--mu);margin-left:auto;}
+.istb{padding:10px 12px;}
+.isd{font-size:11px;color:var(--mu);margin-bottom:7px;line-height:1.65;}
+.inote{padding:7px 10px;background:var(--sf);border-left:2px solid var(--y);font-size:10px;color:var(--mu);line-height:1.6;display:flex;gap:6px;}
+.inote i{color:var(--y);flex-shrink:0;margin-top:1px;}
+.inote a{color:var(--eg);font-weight:600;}
 
-/* neofetch window */
-.nf{padding:18px 20px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;}
-.nf-art{font-size:10px;line-height:1.3;color:var(--yolk);white-space:pre;}
-.nf-info{font-size:11px;line-height:2;}
-.nf-info .k{color:var(--yolk);}
-.nf-info .v{color:var(--muted);}
-.nf-colors{display:flex;gap:4px;margin-top:8px;}
-.nf-color{width:16px;height:16px;border-radius:3px;}
+/* neofetch */
+.nf{padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;}
+.nf-art{font-size:9px;line-height:1.25;color:var(--y);white-space:pre;font-family:'IBM Plex Mono',monospace;}
+.nfi{font-size:10px;line-height:2;font-family:'IBM Plex Mono',monospace;}
+.nfi .k{color:var(--y);}.nfi .v{color:var(--mu);}
+.nfc{display:flex;gap:3px;margin-top:8px;}
+.nfcb{width:14px;height:14px;border-radius:2px;}
+
+/* docs */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.di{
+  background:var(--s2);border:1px solid var(--ru);border-radius:4px;
+  padding:12px;text-decoration:none;color:var(--mu);
+  display:flex;flex-direction:column;gap:4px;transition:all .15s;
+}
+.di:hover{border-color:var(--y);color:var(--eg);}
+.di i{font-size:14px;color:var(--y);}
+.di:hover i{color:var(--b);}
+.di strong{font-size:11px;color:var(--eg);}
+.di span{font-size:10px;}
 
 /* req table */
-.req-table{width:100%;border-collapse:collapse;font-size:12px;}
-.req-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--yolk);border-bottom:1px solid var(--rule);}
-.req-table td{padding:8px 10px;border-bottom:1px solid var(--rule);color:var(--muted);}
-.req-table td:first-child{color:var(--egg);}
-.req-table tr:last-child td{border-bottom:none;}
+.rt{width:100%;border-collapse:collapse;}
+.rt th{text-align:left;padding:7px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--y);border-bottom:1px solid var(--ru);}
+.rt td{padding:7px 10px;border-bottom:1px solid var(--ru);color:var(--mu);font-size:11px;}
+.rt td:first-child{color:var(--eg);}
+.rt tr:last-child td{border-bottom:none;}
 
-/* docs grid */
-.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.doc-item{
-  background:var(--surface2);border:1px solid var(--rule);border-radius:5px;
-  padding:14px;text-decoration:none;color:var(--muted);
-  display:flex;flex-direction:column;gap:5px;transition:all 0.15s;
+/* ══════════════════════════════════════════
+   TERMINAL
+══════════════════════════════════════════ */
+.term{
+  padding:12px 14px;background:var(--cb);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  color:#c8b89a;line-height:1.8;height:100%;
+  display:flex;flex-direction:column;
 }
-.doc-item:hover{border-color:var(--yolk);color:var(--egg);}
-.doc-item i{font-size:16px;color:var(--yolk);margin-bottom:2px;}
-.doc-item:hover i{color:var(--butter);}
-.doc-item strong{font-size:12px;color:var(--egg);}
-.doc-item span{font-size:11px;}
+.term-out{flex:1;overflow-y:auto;margin-bottom:6px;}
+.term-out::-webkit-scrollbar{width:3px;}
+.term-out::-webkit-scrollbar-thumb{background:var(--ru);}
+.term-line{margin-bottom:1px;}
+.term-line.cmd{color:var(--y);}
+.term-line.ok{color:var(--gr);}
+.term-line.err{color:var(--re);}
+.term-line.head{color:var(--eg);font-weight:600;}
+.term-line.dim{color:#5a4a38;}
+.term-input-row{display:flex;align-items:center;gap:6px;border-top:1px solid #2a2018;padding-top:8px;}
+.term-ps{color:var(--y);white-space:nowrap;}
+.term-in{
+  background:none;border:none;outline:none;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  color:var(--eg);flex:1;caret-color:var(--y);
+}
 
-/* ═══════════ ROFI LAUNCHER ═══════════ */
+/* ══════════════════════════════════════════
+   ROFI / LAUNCHER
+══════════════════════════════════════════ */
 #rofi{
-  position:fixed;top:80px;left:50%;transform:translateX(-50%);
-  z-index:500;width:420px;max-width:90vw;
-  background:var(--surface);border:1px solid var(--yolk);
-  border-radius:10px;box-shadow:0 0 0 1px var(--yolk),0 16px 64px rgba(0,0,0,0.9);
+  position:fixed;top:60px;left:50%;transform:translateX(-50%);
+  z-index:500;width:380px;max-width:90vw;
+  background:var(--sf);border:1px solid var(--y);
+  border-radius:8px;
+  box-shadow:0 0 0 1px var(--y),0 16px 64px rgba(0,0,0,.9);
   display:none;overflow:hidden;
 }
-#rofi.open{display:block;}
+#rofi.on{display:block;}
 .rofi-hd{
-  display:flex;align-items:center;gap:10px;
-  padding:12px 16px;border-bottom:1px solid var(--rule);
-  background:var(--surface2);
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-bottom:1px solid var(--ru);
+  background:var(--s2);
 }
-.rofi-hd i{font-size:16px;color:var(--yolk);}
-.rofi-hd span{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);}
-.rofi-input-wrap{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--rule);gap:8px;}
-.rofi-input-wrap i{color:var(--muted);font-size:14px;}
-#rofi-input{
+.rofi-hd i{font-size:14px;color:var(--y);}
+.rofi-hd span{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);}
+.rofi-si{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--ru);gap:7px;}
+.rofi-si i{color:var(--mu);font-size:13px;}
+#ri{
   background:none;border:none;outline:none;
-  font-family:var(--font-mono);font-size:13px;color:var(--egg);
-  flex:1;caret-color:var(--yolk);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--eg);flex:1;caret-color:var(--y);
 }
-.rofi-list{list-style:none;padding:8px 0;max-height:260px;overflow-y:auto;}
-.rofi-item{
-  display:flex;align-items:center;gap:12px;
-  padding:9px 16px;cursor:pointer;font-size:13px;color:var(--muted);
-  transition:all 0.1s;
+.rofi-ul{list-style:none;padding:6px 0;max-height:220px;overflow-y:auto;}
+.rofi-li{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 14px;cursor:pointer;font-size:12px;color:var(--mu);transition:all .1s;
 }
-.rofi-item:hover,.rofi-item.sel{background:var(--yolk);color:var(--char);}
-.rofi-item i{font-size:14px;width:20px;text-align:center;}
-.rofi-item .app-name{flex:1;}
-.rofi-item .app-hint{font-size:10px;opacity:0.6;}
+.rofi-li:hover,.rofi-li.sel{background:var(--y);color:var(--ch);}
+.rofi-li i{font-size:13px;width:18px;text-align:center;}
 
-/* ═══════════ TASKBAR (bottom mini) ═══════════ */
-#taskbar{
-  position:relative;z-index:100;
-  height:32px;background:var(--surface);
-  border-top:1px solid var(--rule);
+/* ══════════════════════════════════════════
+   BOTTOM DOCK
+══════════════════════════════════════════ */
+#dock{
+  position:relative;z-index:200;
+  height:30px;
+  background:var(--wb);border-top:1px solid var(--ru);
   display:flex;align-items:center;
-  padding:0 14px;gap:8px;
+  padding:0 12px;gap:6px;
   flex-shrink:0;
 }
-.tb-item{
+.dk-app{
   display:flex;align-items:center;gap:5px;
-  padding:3px 10px;border:1px solid transparent;border-radius:4px;
-  font-size:10px;color:var(--muted);cursor:pointer;
-  transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;
-  max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding:2px 8px;border:1px solid transparent;border-radius:3px;
+  font-size:10px;color:var(--mu);cursor:pointer;
+  transition:all .15s;text-transform:uppercase;letter-spacing:.5px;
+  max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.tb-item:hover{border-color:var(--rule);color:var(--egg);}
-.tb-item.active{border-color:var(--yolk);color:var(--yolk);}
-.tb-item i{font-size:11px;flex-shrink:0;}
-.tb-spacer{flex:1;}
-.tb-hint{font-size:9px;color:#3b2e1e;letter-spacing:0.5px;}
+.dk-app:hover{border-color:var(--ru);color:var(--eg);}
+.dk-app.act{border-color:var(--y);color:var(--y);}
+.dk-app i{font-size:11px;flex-shrink:0;}
+.dk-sep{width:1px;height:16px;background:var(--ru);}
+.dk-sp{flex:1;}
+.dk-hint{font-size:8px;color:#2e2416;letter-spacing:.5px;text-align:right;}
 
-/* ═══════════ DESKTOP HINTS ═══════════ */
+/* ══════════════════════════════════════════
+   DESKTOP HINTS
+══════════════════════════════════════════ */
 #hints{
-  position:absolute;bottom:20px;right:20px;
-  font-family:var(--font-mono);font-size:10px;
-  color:#3b2e2e;line-height:2;text-align:right;
-  pointer-events:none;z-index:2;
+  position:absolute;bottom:14px;right:14px;
+  font-size:9px;color:#2e2416;line-height:2;
+  text-align:right;pointer-events:none;z-index:2;
 }
-#hints .h-key{color:#5a4030;}
+#hints .hk{color:#3b2820;}
 
-/* ═══════════ CONTEXT MENU ═══════════ */
+/* ══════════════════════════════════════════
+   CONTEXT MENU
+══════════════════════════════════════════ */
 #ctx{
   position:fixed;z-index:600;
-  background:var(--surface);border:1px solid var(--rule);
-  border-radius:6px;padding:4px 0;box-shadow:var(--shadow);
-  display:none;min-width:160px;
+  background:var(--sf);border:1px solid var(--ru);
+  border-radius:5px;padding:4px 0;
+  box-shadow:0 8px 32px rgba(0,0,0,.7);
+  display:none;min-width:150px;
 }
-#ctx.open{display:block;}
-.ctx-item{
-  display:flex;align-items:center;gap:10px;
-  padding:7px 14px;font-size:12px;color:var(--muted);cursor:pointer;
+#ctx.on{display:block;}
+.ci{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 13px;font-size:11px;color:var(--mu);cursor:pointer;
 }
-.ctx-item:hover{background:var(--surface2);color:var(--egg);}
-.ctx-item i{font-size:13px;color:var(--yolk);width:16px;}
-.ctx-sep{height:1px;background:var(--rule);margin:3px 0;}
+.ci:hover{background:var(--s2);color:var(--eg);}
+.ci i{font-size:12px;color:var(--y);width:15px;}
+.csep{height:1px;background:var(--ru);margin:3px 0;}
 
-/* ═══════════ NOTIFICATION ═══════════ */
+/* ══════════════════════════════════════════
+   NOTIFICATION
+══════════════════════════════════════════ */
 #notif{
-  position:fixed;top:48px;right:12px;z-index:800;
-  background:var(--surface);border:1px solid var(--win-border);
-  border-radius:7px;padding:12px 16px;
-  font-size:11px;color:var(--muted);max-width:280px;
-  opacity:0;transform:translateX(20px);
-  transition:all 0.3s ease;pointer-events:none;
-  box-shadow:var(--shadow);
+  position:fixed;top:46px;right:10px;z-index:800;
+  background:var(--sf);border:1px solid var(--ru);
+  border-radius:6px;padding:10px 14px;
+  font-size:10px;color:var(--mu);max-width:240px;
+  opacity:0;transform:translateX(14px);
+  transition:all .3s;pointer-events:none;
+  box-shadow:0 8px 32px rgba(0,0,0,.7);
 }
-#notif.show{opacity:1;transform:translateX(0);}
-#notif .n-title{font-size:12px;color:var(--egg);font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
-#notif .n-title i{color:var(--yolk);}
+#notif.on{opacity:1;transform:translateX(0);}
+#notif .nt{font-size:11px;color:var(--eg);margin-bottom:2px;display:flex;align-items:center;gap:5px;}
+#notif .nt i{color:var(--y);}
 
-/* ═══════════ SCROLLBAR ═══════════ */
-*::-webkit-scrollbar{width:4px;height:4px;}
-*::-webkit-scrollbar-track{background:transparent;}
-*::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
+/* ══════════════════════════════════════════
+   MOBILE FALLBACK
+══════════════════════════════════════════ */
+#mobile{
+  display:none;
+  font-family:'IBM Plex Sans',sans-serif;
+  background:var(--ch);color:var(--eg);
+  min-height:100vh;overflow-y:auto;
+}
+#mobile nav{
+  position:sticky;top:0;
+  background:var(--wb);border-bottom:1px solid var(--ru);
+  padding:0 20px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  z-index:10;
+}
+#mobile .m-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--y);}
+#mobile .m-dl{
+  background:var(--y);color:var(--ch);font-family:'IBM Plex Mono',monospace;
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;
+  padding:6px 14px;border-radius:3px;text-decoration:none;
+  display:flex;align-items:center;gap:5px;
+}
+#mobile .hero{
+  padding:56px 24px 48px;
+  border-bottom:1px solid var(--ru);
+}
+#mobile .hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(56px,14vw,88px);line-height:.95;
+  letter-spacing:1px;margin-bottom:20px;
+}
+#mobile .hero h1 .inv{
+  color:var(--sf);background:var(--eg);
+  padding:0 8px;
+}
+#mobile .hero p{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;color:var(--mu);line-height:1.75;
+  max-width:420px;margin-bottom:28px;
+}
+#mobile .hero .brow{display:flex;gap:10px;flex-wrap:wrap;}
+#mobile .m-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:10px 22px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:7px;
+  text-decoration:none;border:1px solid;transition:all .15s;
+}
+#mobile .m-btn.p{background:var(--y);color:var(--ch);border-color:var(--y);}
+#mobile .m-btn.s{background:transparent;color:var(--mu);border-color:var(--ru);}
+
+#mobile section{padding:44px 24px;border-bottom:1px solid var(--ru);}
+#mobile h2{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,8vw,52px);
+  letter-spacing:-1px;line-height:.95;margin-bottom:20px;
+}
+#mobile .slbl{
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:2px;color:var(--mu);
+  margin-bottom:24px;display:flex;align-items:center;gap:8px;
+}
+#mobile .slbl::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--y);flex-shrink:0;}
+#mobile .slbl::after{content:'';flex:1;height:1px;background:var(--ru);}
+#mobile .m-fl{list-style:none;}
+#mobile .m-fl li{
+  padding:10px 0;border-bottom:1px solid var(--ru);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  display:flex;align-items:center;gap:9px;color:var(--mu);
+}
+#mobile .m-fl li:last-child{border-bottom:none;}
+#mobile .m-fl li i{font-size:13px;color:var(--y);}
+#mobile .m-fl li i.x{color:var(--re);}
+#mobile .m-sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+#mobile .m-sb{
+  background:var(--sf);border:1px solid var(--ru);border-radius:5px;
+  padding:14px;text-align:center;
+}
+#mobile .m-sb .v{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--y);letter-spacing:1px;line-height:1;}
+#mobile .m-sb .k{font-family:'IBM Plex Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mu);margin-top:3px;}
+#mobile .m-cw{margin:12px 0;}
+#mobile .m-cb{
+  background:var(--cb);border:1px solid #2a2018;
+  border-radius:5px;padding:14px 16px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  line-height:1.9;color:#c8b89a;overflow-x:auto;
+}
+#mobile .m-cb .cm{color:var(--y);}
+#mobile .m-cb .cc{color:#5a4a38;}
+#mobile .m-dg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+#mobile .m-di{
+  background:var(--sf);border:1px solid var(--ru);border-radius:5px;
+  padding:14px;text-decoration:none;color:var(--mu);
+  display:flex;flex-direction:column;gap:5px;transition:border-color .15s;
+}
+#mobile .m-di:hover{border-color:var(--y);color:var(--eg);}
+#mobile .m-di i{font-size:16px;color:var(--y);}
+#mobile .m-di strong{font-size:12px;color:var(--eg);}
+#mobile .m-di span{font-size:11px;}
+#mobile footer{
+  padding:32px 24px;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mu);line-height:1.9;
+}
+#mobile footer a{color:var(--eg);text-decoration:none;}
+#mobile .m-note{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:10px 14px;background:var(--sf);
+  border-left:2px solid var(--y);border-radius:0 4px 4px 0;
+  color:var(--mu);line-height:1.6;margin:10px 0;
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════ BOOT SCREEN ═══════════ -->
+<!-- ═══ BOOT ═══ -->
 <div id="boot">
-  <div class="boot-logo">AndaOS</div>
-  <div class="boot-sub">Arch · Hyprland · Rolling</div>
-  <div class="boot-log" id="bootLog"></div>
-  <div class="boot-bar-wrap"><div class="boot-bar" id="bootBar"></div></div>
-  <div class="boot-user" id="bootUser">
-    andaos login: himel <span class="boot-cursor"></span>
-  </div>
+  <div class="b-logo">AndaOS</div>
+  <div class="b-sub">Arch · Hyprland · Rolling Release</div>
+  <div class="bl" id="bl"></div>
+  <div class="b-bar-w"><div class="b-bar" id="bb"></div></div>
 </div>
 
-<!-- ═══════════ DESKTOP ═══════════ -->
-<div id="desktop">
+<!-- ═══ DESKTOP ═══ -->
+<div id="desk" data-theme="dark">
 
-  <!-- Egg wallpaper -->
-  <div id="wallpaper">
-    <svg class="wp-egg" viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 102 200 C 70 192, 50 170, 54 148 C 58 122, 78 108, 98 113 C 110 96, 128 87, 150 91 C 164 77, 190 76, 202 91 C 222 83, 244 92, 250 112 C 266 116, 274 136, 264 156 C 270 172, 258 186, 242 190 Z" fill="#f5ede0"/>
-      <circle cx="162" cy="148" r="40" fill="#c47a0a"/>
-      <circle cx="162" cy="148" r="35" fill="#d4890a"/>
-      <circle cx="162" cy="148" r="30" fill="#e8a830"/>
-      <circle cx="162" cy="148" r="25" fill="#f5c842"/>
-      <ellipse cx="151" cy="136" rx="9" ry="5" fill="#fff" opacity="0.3" transform="rotate(-18 151 136)"/>
+  <div id="wp">
+    <svg class="wp-svg" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 102 180 C 70 172, 50 157, 54 140 C 58 120, 78 110, 98 114 C 110 98, 128 90, 150 94 C 164 80, 190 78, 202 92 C 222 84, 244 92, 250 110 C 266 114, 274 132, 264 150 C 270 164, 258 176, 242 180 Z" fill="#f5ede0"/>
+      <circle cx="162" cy="140" r="38" fill="#c47a0a"/>
+      <circle cx="162" cy="140" r="33" fill="#d4890a"/>
+      <circle cx="162" cy="140" r="28" fill="#e8a830"/>
+      <circle cx="162" cy="140" r="23" fill="#f5c842"/>
+      <ellipse cx="152" cy="129" rx="8" ry="5" fill="#fff" opacity=".28" transform="rotate(-18 152 129)"/>
     </svg>
   </div>
 
-  <!-- Waybar -->
-  <div id="waybar">
-    <div class="wb-left">
-      <span class="wb-logo" onclick="toggleRofi()">AndaOS</span>
-      <div class="wb-workspaces" id="wsIndicators"></div>
+  <!-- WAYBAR -->
+  <div id="bar">
+    <div class="bar-l">
+      <span class="bar-logo" onclick="toggleRofi()" title="Launch app (Super+D)">AndaOS</span>
+      <div class="ws-dots" id="wsdots"></div>
     </div>
-    <div class="wb-center">
-      <div class="wb-window-title" id="wbTitle">~ — hyprland</div>
+    <div class="bar-c">
+      <div class="bar-wtitle" id="bwt">~ — hyprland</div>
     </div>
-    <div class="wb-right">
-      <div class="wb-pill g"><i class="ri-leaf-line"></i> pacman</div>
-      <div class="wb-pill"><i class="ri-wifi-line"></i> connected</div>
-      <div class="wb-pill y"><i class="ri-cpu-line"></i> <span id="cpuVal">2%</span></div>
-      <div class="wb-sep"></div>
-      <div class="wb-clock" id="clock">00:00</div>
-      <div class="wb-sep"></div>
-      <button class="wb-btn" onclick="toggleRofi()" title="App launcher (Super+D)"><i class="ri-apps-2-line"></i></button>
-      <a href="https://github.com/hello2himel/andaos/releases" class="wb-btn accent" target="_blank"><i class="ri-download-2-line"></i> Download</a>
+    <div class="bar-r">
+      <div class="bar-mod net"><i class="ri-wifi-line"></i> <span id="netv">Connected</span></div>
+      <div class="bar-mod vol"><i class="ri-volume-up-line"></i> <span id="volv">80%</span></div>
+      <div class="bar-mod bat"><i class="ri-battery-line"></i> <span id="batv">92%</span></div>
+      <div class="bar-sep"></div>
+      <div class="bar-clock" id="bclk">00:00</div>
+      <div class="bar-sep"></div>
+      <button class="bar-btn" onclick="toggleTheme()" id="thbtn" title="Toggle theme"><i class="ri-sun-line" id="thico"></i></button>
+      <button class="bar-btn" onclick="toggleRofi()" title="Launcher (Super+D)"><i class="ri-apps-2-line"></i></button>
+      <a href="https://github.com/hello2himel/andaos/releases" class="bar-dl" target="_blank"><i class="ri-download-2-line"></i> ISO</a>
     </div>
   </div>
 
-  <!-- Workspace area -->
-  <div id="ws-area" id="wsArea" oncontextmenu="showCtx(event)"></div>
-
-  <!-- Desktop hints -->
-  <div id="hints">
-    <div><span class="h-key">Right-click</span> desktop menu</div>
-    <div><span class="h-key">Click logo / Super+D</span> app launcher</div>
-    <div><span class="h-key">Drag</span> window titlebars</div>
-    <div><span class="h-key">Dots</span> switch workspaces</div>
-    <div><span class="h-key">●/●/●</span> close · min · max</div>
+  <!-- WORKSPACE AREA -->
+  <div id="wsa" oncontextmenu="showCtx(event)">
+    <div id="hints">
+      <div><span class="hk">Right-click</span> desktop menu</div>
+      <div><span class="hk">Super+D / logo</span> launcher</div>
+      <div><span class="hk">Drag</span> titlebars to move</div>
+      <div><span class="hk">Scroll</span> workspace dots</div>
+      <div><span class="hk">● ● ●</span> close · min · max</div>
+    </div>
   </div>
 
-  <!-- Taskbar -->
-  <div id="taskbar">
-    <div class="tb-item" onclick="toggleRofi()"><i class="ri-apps-2-line"></i> Launcher</div>
-    <div id="taskbarItems" style="display:flex;gap:8px;"></div>
-    <div class="tb-spacer"></div>
-    <div class="tb-hint">andaos · hyprland · arch linux</div>
+  <!-- BOTTOM DOCK -->
+  <div id="dock">
+    <div class="dk-app" onclick="toggleRofi()"><i class="ri-apps-2-line"></i> Apps</div>
+    <div class="dk-sep"></div>
+    <div id="dktasks" style="display:flex;gap:5px;"></div>
+    <div class="dk-sp"></div>
+    <div class="dk-hint">andaos · hyprland · arch</div>
   </div>
 </div>
 
-<!-- Rofi -->
+<!-- ROFI -->
 <div id="rofi">
-  <div class="rofi-hd"><i class="ri-apps-2-line"></i><span>Application Launcher</span></div>
-  <div class="rofi-input-wrap"><i class="ri-search-line"></i><input id="rofi-input" placeholder="Search apps..." oninput="filterRofi()" onkeydown="rofiKey(event)"/></div>
-  <ul class="rofi-list" id="rofiList"></ul>
+  <div class="rofi-hd"><i class="ri-apps-2-line"></i><span>Launcher — wofi</span></div>
+  <div class="rofi-si"><i class="ri-search-line"></i><input id="ri" placeholder="Search…" oninput="frofi()" onkeydown="krofi(event)"></div>
+  <ul class="rofi-ul" id="rul"></ul>
 </div>
 
-<!-- Context menu -->
+<!-- CONTEXT MENU -->
 <div id="ctx">
-  <div class="ctx-item" onclick="ctxAction('terminal')"><i class="ri-terminal-line"></i> Open Terminal</div>
-  <div class="ctx-item" onclick="ctxAction('files')"><i class="ri-folder-open-line"></i> File Manager</div>
-  <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxAction('about')"><i class="ri-information-line"></i> About AndaOS</div>
-  <div class="ctx-item" onclick="ctxAction('settings')"><i class="ri-settings-3-line"></i> Hyprland Config</div>
-  <div class="ctx-sep"></div>
-  <div class="ctx-item" onclick="ctxAction('reload')"><i class="ri-refresh-line"></i> Reload Hyprland</div>
+  <div class="ci" onclick="ca('welcome')"><i class="ri-home-line"></i> Home</div>
+  <div class="ci" onclick="ca('terminal')"><i class="ri-terminal-line"></i> Terminal</div>
+  <div class="ci" onclick="ca('about')"><i class="ri-information-line"></i> About</div>
+  <div class="csep"></div>
+  <div class="ci" onclick="ca('settings')"><i class="ri-settings-3-line"></i> hyprland.conf</div>
+  <div class="csep"></div>
+  <div class="ci" onclick="toggleTheme()"><i class="ri-contrast-2-line"></i> Toggle Theme</div>
 </div>
 
-<!-- Notification -->
+<!-- NOTIFICATION -->
 <div id="notif">
-  <div class="n-title"><i class="ri-notification-3-line"></i> <span id="notifTitle"></span></div>
-  <div id="notifBody"></div>
+  <div class="nt"><i class="ri-notification-3-line"></i><span id="ntit"></span></div>
+  <div id="nbdy"></div>
+</div>
+
+<!-- ═══ MOBILE FALLBACK ═══ -->
+<div id="mobile">
+  <nav>
+    <div class="m-logo">AndaOS</div>
+    <a href="https://github.com/hello2himel/andaos/releases" class="m-dl" target="_blank"><i class="ri-download-2-line"></i> Download</a>
+  </nav>
+
+  <div class="hero">
+    <div class="slbl">Arch Linux · Hyprland · Rolling</div>
+    <h1>Arch.<br><span class="inv">Without</span><br>the pain.</h1>
+    <p>A pre-configured Arch base that gets out of your way. Hyprland, zero bloat, full Arch compatibility. Boot. Configure. Own it.</p>
+    <div class="brow">
+      <a href="https://github.com/hello2himel/andaos/releases" class="m-btn p" target="_blank"><i class="ri-download-2-line"></i> Download ISO</a>
+      <a href="https://github.com/hello2himel/andaos" class="m-btn s" target="_blank"><i class="ri-github-line"></i> Source</a>
+    </div>
+  </div>
+
+  <section>
+    <div class="slbl">About</div>
+    <div class="m-sg">
+      <div class="m-sb"><div class="v">~1.5G</div><div class="k">ISO Size</div></div>
+      <div class="m-sb"><div class="v">&lt;20s</div><div class="k">Boot Time</div></div>
+      <div class="m-sb"><div class="v">&lt;500M</div><div class="k">RAM Idle</div></div>
+      <div class="m-sb"><div class="v">Zero</div><div class="k">Telemetry</div></div>
+    </div>
+    <div class="m-note"><strong style="color:#a89880">Anda</strong> means egg in Bengali — also: a charmingly stupid person. This OS is both.</div>
+  </section>
+
+  <section>
+    <div class="slbl">Features</div>
+    <ul class="m-fl">
+      <li><i class="ri-check-line"></i>Hyprland + Waybar, pre-configured</li>
+      <li><i class="ri-check-line"></i>Firefox with privacy defaults</li>
+      <li><i class="ri-check-line"></i>PipeWire + Wireplumber</li>
+      <li><i class="ri-check-line"></i>NetworkManager + applet</li>
+      <li><i class="ri-check-line"></i>nano, vim, git, htop, btop, zsh</li>
+      <li><i class="ri-check-line"></i>Full firmware & hardware support</li>
+      <li><i class="ri-check-line"></i>Bluetooth with GUI</li>
+      <li><i class="ri-close-line x"></i>No telemetry. Ever.</li>
+      <li><i class="ri-close-line x"></i>No mystery background services</li>
+    </ul>
+  </section>
+
+  <section id="m-install">
+    <div class="slbl">Install</div>
+    <div class="m-note">Flash → Boot → pacstrap. Standard Arch — nothing proprietary.</div>
+    <div class="m-cw">
+      <div class="m-cb">
+<span class="cm">sudo dd bs=4M if=andaos-*.iso of=/dev/sdX \</span>
+<span class="cm">     status=progress oflag=sync</span>
+<span class="cc"># then</span>
+<span class="cm">pacstrap /mnt base linux hyprland networkmanager</span>
+<span class="cm">genfstab -U /mnt >> /mnt/etc/fstab</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="slbl">Docs & Links</div>
+    <div class="m-dg">
+      <a href="https://wiki.archlinux.org/title/Installation_guide" class="m-di" target="_blank"><i class="ri-book-open-line"></i><strong>Install Guide</strong><span>Arch wiki procedure</span></a>
+      <a href="https://wiki.hyprland.org" class="m-di" target="_blank"><i class="ri-layout-2-line"></i><strong>Hyprland Wiki</strong><span>WM config reference</span></a>
+      <a href="https://github.com/hello2himel/andaos" class="m-di" target="_blank"><i class="ri-github-line"></i><strong>GitHub</strong><span>Source & issues</span></a>
+      <a href="https://wiki.archlinux.org" class="m-di" target="_blank"><i class="ri-earth-line"></i><strong>Arch Wiki</strong><span>Best Linux docs</span></a>
+    </div>
+  </section>
+
+  <footer>
+    MIT License · Not affiliated with <a href="https://archlinux.org" target="_blank">Arch Linux</a><br>
+    Community maintained · <a href="https://github.com/hello2himel/andaos" target="_blank">GitHub</a><br>
+    <br>Keep it simple. Keep it stupid.
+  </footer>
 </div>
 
 <script>
-// ═══════════ BOOT SEQUENCE ═══════════
-const bootLines = [
-  {t:'[ <ok>OK</ok> ] Started udev Kernel Device Manager',d:80},
-  {t:'[ <ok>OK</ok> ] Reached target Local File Systems',d:60},
-  {t:'[ <ok>OK</ok> ] Started Network Manager',d:90},
-  {t:'[    ] Starting Hyprland display server...',d:110},
-  {t:'[ <ok>OK</ok> ] Started Hyprland display server',d:70},
-  {t:'[ <ok>OK</ok> ] Started PipeWire Audio',d:60},
-  {t:'[    ] Loading AndaOS session...',d:100},
-  {t:'andaos-session: loading user dotfiles',d:80},
-  {t:'waybar: initialized (Hyprland IPC)',d:70},
-  {t:'[ <ok>OK</ok> ] Session ready',d:60},
-];
+// ═══════════════════════════════════════
+// MOBILE DETECTION
+// ═══════════════════════════════════════
+function isMobile(){return window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);}
 
-let bootDone = false;
-const logEl = document.getElementById('bootLog');
-const barEl = document.getElementById('bootBar');
-const userEl = document.getElementById('bootUser');
+if(isMobile()){
+  document.getElementById('boot').style.display='none';
+  document.getElementById('desk').style.display='none';
+  const m=document.getElementById('mobile');
+  m.style.display='block';
+  document.body.style.overflow='auto';
+  document.body.style.background='var(--ch)';
+  // apply light/dark from system
+  if(!window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.documentElement.setAttribute('data-theme','light');
+    m.setAttribute('data-theme','light');
+  }
+} else {
+  document.getElementById('mobile').style.display='none';
+  runBoot();
+}
+
+// ═══════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════
+const BOOT_LINES=[
+  {t:'[<ok>  OK  </ok>] Started udev Kernel Device Manager',d:70},
+  {t:'[<ok>  OK  </ok>] Reached target Local File Systems',d:55},
+  {t:'[<ok>  OK  </ok>] Loaded kernel modules',d:60},
+  {t:'[<ok>  OK  </ok>] Started Network Manager',d:80},
+  {t:'[  <w>   </w>  ] Starting Hyprland display server...',d:110},
+  {t:'[<ok>  OK  </ok>] Started Hyprland display server',d:65},
+  {t:'[<ok>  OK  </ok>] Started PipeWire audio daemon',d:55},
+  {t:'[<ok>  OK  </ok>] Started Waybar status bar',d:60},
+  {t:'andaos-session: loading dotfiles...',d:80},
+  {t:'[<ok>  OK  </ok>] Session ready — welcome to AndaOS',d:55},
+];
 
 function runBoot(){
-  let i=0, progress=0;
+  const bl=document.getElementById('bl');
+  const bb=document.getElementById('bb');
+  let i=0,p=0;
   function next(){
-    if(i>=bootLines.length){
-      barEl.style.width='100%';
-      setTimeout(()=>{userEl.classList.add('show');},300);
+    if(i>=BOOT_LINES.length){
+      bb.style.width='100%';
       setTimeout(()=>{
-        document.getElementById('boot').classList.add('fade-out');
+        document.getElementById('boot').classList.add('out');
         setTimeout(()=>{
           document.getElementById('boot').style.display='none';
-          document.getElementById('desktop').classList.add('visible');
-          initDesktop();
-        },900);
-      },1400);
+          document.getElementById('desk').classList.add('on');
+          initDesk();
+        },700);
+      },600);
       return;
     }
-    const l = bootLines[i];
-    const div = document.createElement('div');
-    div.className='line';
-    div.style.animationDelay=`0ms`;
-    div.innerHTML = l.t.replace('<ok>','<span class="ok">').replace('</ok>','</span>');
-    logEl.appendChild(div);
-    logEl.scrollTop=logEl.scrollHeight;
-    progress = Math.min(98, progress + (100/bootLines.length));
-    barEl.style.width = progress+'%';
-    i++;
-    setTimeout(next, l.d);
+    const l=BOOT_LINES[i];
+    const s=document.createElement('span');
+    s.innerHTML=l.t
+      .replace('<ok>','<span style="color:#7ec86e">')
+      .replace('</ok>','</span>')
+      .replace('<w>','<span style="color:#f5c842">')
+      .replace('</w>','</span>');
+    bl.appendChild(s);bl.appendChild(document.createElement('br'));
+    bl.scrollTop=bl.scrollHeight;
+    p=Math.min(98,p+100/BOOT_LINES.length);
+    bb.style.width=p+'%';
+    i++;setTimeout(next,l.d);
   }
-  next();
+  setTimeout(next,400);
 }
 
-setTimeout(runBoot, 500);
-
-// ═══════════ DESKTOP INIT ═══════════
-const APPS = [
-  {id:'about',    name:'About AndaOS',     icon:'ri-information-line',    ws:1, w:420, h:520, x:60,  y:40},
-  {id:'neofetch', name:'neofetch',          icon:'ri-terminal-box-line',   ws:1, w:340, h:380, x:500, y:60},
-  {id:'features', name:'Features',          icon:'ri-star-line',           ws:2, w:400, h:500, x:80,  y:40},
-  {id:'philosophy',name:'Philosophy',       icon:'ri-lightbulb-line',      ws:2, w:420, h:480, x:510, y:50},
-  {id:'install',  name:'Install — Terminal',icon:'ri-terminal-line',       ws:3, w:540, h:540, x:80,  y:40},
-  {id:'docs',     name:'Docs & Links',      icon:'ri-book-open-line',      ws:4, w:400, h:460, x:80,  y:40},
-  {id:'hardware', name:'System Requirements',icon:'ri-cpu-line',           ws:4, w:360, h:360, x:500, y:40},
-  {id:'settings', name:'hyprland.conf',     icon:'ri-settings-3-line',     ws:5, w:420, h:440, x:100, y:50},
+// ═══════════════════════════════════════
+// DESKTOP
+// ═══════════════════════════════════════
+const APPS=[
+  {id:'welcome', name:'Welcome',         icon:'ri-home-line',          ws:1,w:480,h:520,x:80, y:40},
+  {id:'about',   name:'About AndaOS',    icon:'ri-information-line',   ws:1,w:360,h:480,x:580,y:50},
+  {id:'terminal',name:'Terminal',        icon:'ri-terminal-line',      ws:2,w:500,h:400,x:80, y:50},
+  {id:'install', name:'Install AndaOS',  icon:'ri-hard-drive-2-line',  ws:3,w:520,h:540,x:80, y:40},
+  {id:'docs',    name:'Docs & Links',    icon:'ri-book-open-line',     ws:4,w:400,h:460,x:80, y:40},
+  {id:'settings',name:'hyprland.conf',   icon:'ri-settings-3-line',    ws:5,w:430,h:460,x:80, y:40},
 ];
 
-const ROFI_APPS = [
-  {name:'About AndaOS',     icon:'ri-information-line',    action:()=>openApp('about')},
-  {name:'neofetch',         icon:'ri-terminal-box-line',   action:()=>openApp('neofetch')},
-  {name:'Features',         icon:'ri-star-line',           action:()=>openApp('features')},
-  {name:'Philosophy',       icon:'ri-lightbulb-line',      action:()=>openApp('philosophy')},
-  {name:'Install Guide',    icon:'ri-terminal-line',       action:()=>openApp('install')},
-  {name:'Documentation',    icon:'ri-book-open-line',      action:()=>openApp('docs')},
-  {name:'System Requirements',icon:'ri-cpu-line',          action:()=>openApp('hardware')},
-  {name:'hyprland.conf',    icon:'ri-settings-3-line',     action:()=>openApp('settings')},
-  {name:'GitHub',           icon:'ri-github-line',         action:()=>window.open('https://github.com/hello2himel/andaos','_blank')},
+const ROFI_APPS=[
+  {name:'Welcome',       icon:'ri-home-line',         id:'welcome'},
+  {name:'About AndaOS',  icon:'ri-information-line',  id:'about'},
+  {name:'Terminal',      icon:'ri-terminal-line',     id:'terminal'},
+  {name:'Install AndaOS',icon:'ri-hard-drive-2-line', id:'install'},
+  {name:'Docs & Links',  icon:'ri-book-open-line',    id:'docs'},
+  {name:'hyprland.conf', icon:'ri-settings-3-line',   id:'settings'},
+  {name:'GitHub',        icon:'ri-github-line',       id:null,url:'https://github.com/hello2himel/andaos'},
+  {name:'Download ISO',  icon:'ri-download-2-line',   id:null,url:'https://github.com/hello2himel/andaos/releases'},
 ];
 
-let currentWs = 1;
-let zTop = 10;
-const openWindows = {};
-const wsByApp = {};
+let curWs=1,zTop=10;
+const wins={};  // id -> el
+const appWs={}; // id -> ws
 
-function initDesktop(){
-  updateClock();
-  setInterval(updateClock, 10000);
-  fakeMetrics();
-  buildWsIndicators();
-  buildRofi();
-  // open default windows on ws1
-  setTimeout(()=>{ openApp('about'); }, 200);
-  setTimeout(()=>{ openApp('neofetch'); }, 400);
-  notify('Welcome to AndaOS', 'Hyprland session started. Right-click for options.');
+function initDesk(){
+  tick();setInterval(tick,10000);
+  buildDots();buildRofi();
+  // open welcome window after short delay
+  setTimeout(()=>openApp('welcome'),180);
+  notify('AndaOS','Session started. Right-click desktop or use the launcher.');
 }
 
-// ═══════════ WORKSPACES ═══════════
-function buildWsIndicators(){
-  const el = document.getElementById('wsIndicators');
-  el.innerHTML='';
+// ─── CLOCK + METRICS ───
+function tick(){
+  const n=new Date();
+  const t=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  const el=document.getElementById('bclk');if(el)el.textContent=t;
+}
+
+// ─── WORKSPACE DOTS ───
+function buildDots(){
+  const el=document.getElementById('wsdots');el.innerHTML='';
   for(let i=1;i<=5;i++){
-    const d = document.createElement('div');
-    d.className='wb-ws'+(i===currentWs?' active':'');
-    d.title='Workspace '+i;
-    d.dataset.ws=i;
-    d.addEventListener('click',()=>switchWs(i));
+    const d=document.createElement('div');
+    d.className='ws-dot'+(i===curWs?' act':'');
+    const hasWin=Object.entries(appWs).some(([id,w])=>w===i&&wins[id]);
+    if(hasWin&&i!==curWs) d.classList.add('occ');
+    d.title='Workspace '+i;d.dataset.ws=i;
+    d.onclick=()=>goWs(i);
     el.appendChild(d);
   }
+  // scroll on the dots container
+  el.onwheel=e=>{
+    e.preventDefault();
+    const dir=e.deltaY>0?1:-1;
+    const next=Math.max(1,Math.min(5,curWs+dir));
+    if(next!==curWs) goWs(next);
+  };
 }
 
-function switchWs(n){
-  // hide windows of old ws, show windows of new ws
-  Object.entries(openWindows).forEach(([id,win])=>{
-    const ws = wsByApp[id]||1;
-    win.style.display = ws===n ? 'flex':'none';
+function goWs(n){
+  Object.entries(wins).forEach(([id,w])=>{
+    w.style.display=(appWs[id]||1)===n?'flex':'none';
   });
-  currentWs = n;
-  buildWsIndicators();
-  updateTaskbar();
-  updateWsHasWin();
+  curWs=n;buildDots();updDock();
 }
 
-function updateWsHasWin(){
-  document.querySelectorAll('.wb-ws').forEach(d=>{
-    const ws = parseInt(d.dataset.ws);
-    const has = Object.entries(wsByApp).some(([id,w])=>w===ws && openWindows[id]);
-    if(has && ws!==currentWs) d.classList.add('has-win');
-    else d.classList.remove('has-win');
-  });
-}
-
-// ═══════════ WINDOW MANAGER ═══════════
+// ─── OPEN / CLOSE / MINIMIZE / MAX ───
 function openApp(id){
-  if(openWindows[id]){
-    const w=openWindows[id];
-    const ws=wsByApp[id]||1;
-    if(ws!==currentWs) switchWs(ws);
-    w.style.display='flex';
-    w.classList.remove('minimized');
-    activateWin(w, id);
-    return;
+  if(wins[id]){
+    const w=wins[id],ws=appWs[id]||1;
+    if(ws!==curWs) goWs(ws);
+    w.style.display='flex';w.classList.remove('mini');
+    actWin(w,id);return;
   }
-  const app = APPS.find(a=>a.id===id);
-  if(!app) return;
-  const wsArea = document.getElementById('ws-area');
-  const win = document.createElement('div');
-  win.className='window';
-  win.style.cssText=`width:${app.w}px;height:${app.h}px;left:${app.x}px;top:${app.y}px;z-index:${++zTop};`;
-  win.id='win-'+id;
-  win.innerHTML=`
-    <div class="win-bar">
-      <div class="win-dots">
-        <div class="wd close" onclick="closeWin('${id}')"></div>
-        <div class="wd min" onclick="minimizeWin('${id}')"></div>
-        <div class="wd max" onclick="toggleMax('${id}')"></div>
+  const app=APPS.find(a=>a.id===id);if(!app)return;
+  const wsa=document.getElementById('wsa');
+  const el=document.createElement('div');
+  el.className='win';
+  el.style.cssText=`width:${app.w}px;height:${app.h}px;left:${app.x}px;top:${app.y}px;z-index:${++zTop};`;
+  el.id='w-'+id;
+  el.innerHTML=`
+    <div class="wbar">
+      <div class="wdots">
+        <div class="wd cl" onclick="closeWin('${id}')"></div>
+        <div class="wd mn" onclick="miniWin('${id}')"></div>
+        <div class="wd mx" onclick="togMax('${id}')"></div>
       </div>
-      <div class="win-title">${app.icon?`<i class="${app.icon}"></i> `:''}${app.name}</div>
+      <div class="wtitle"><i class="${app.icon}"></i>${app.name}</div>
     </div>
-    <div class="win-content" id="wc-${id}">${buildContent(id)}</div>
-    <div class="win-resize" data-win="${id}"></div>
-  `;
-  wsArea.appendChild(win);
-  openWindows[id]=win;
-  wsByApp[id]=currentWs;
-  // if app has a preferred ws, switch to it
-  if(app.ws && app.ws!==currentWs){
-    wsByApp[id]=app.ws;
-    win.style.display='none';
-    switchWs(app.ws);
-  }
-  makeDraggable(win, id);
-  makeResizable(win);
-  activateWin(win, id);
-  updateTaskbar();
-  updateWsHasWin();
-  // hide hints after first window
-  document.getElementById('hints').style.opacity='0.6';
+    <div class="wcont" id="wc-${id}">${mkContent(id)}</div>
+    <div class="wgrip" data-id="${id}"></div>`;
+  wsa.appendChild(el);
+  wins[id]=el;appWs[id]=curWs;
+  makeDrag(el,id);makeResize(el);
+  actWin(el,id);updDock();
+  document.getElementById('hints').style.opacity='0.5';
 }
 
 function closeWin(id){
-  const w=openWindows[id];
-  if(!w) return;
-  w.style.opacity='0';w.style.transform='scale(0.9)';
-  setTimeout(()=>{ w.remove(); delete openWindows[id]; delete wsByApp[id]; updateTaskbar(); updateWsHasWin(); },180);
+  const w=wins[id];if(!w)return;
+  w.style.opacity='0';w.style.transform='scale(.9)';
+  setTimeout(()=>{w.remove();delete wins[id];delete appWs[id];updDock();buildDots();},160);
+}
+function miniWin(id){const w=wins[id];if(w){w.classList.add('mini');updDock();}}
+function togMax(id){
+  const w=wins[id];if(!w)return;
+  if(w.classList.contains('maxi')){w.classList.remove('maxi');if(w._p)w.style.cssText=w._p;}
+  else{w._p=w.style.cssText;w.classList.add('maxi');}
 }
 
-function minimizeWin(id){
-  const w=openWindows[id];
-  if(w){ w.classList.add('minimized'); updateTaskbar(); }
-}
-
-function toggleMax(id){
-  const w=openWindows[id];
-  if(!w) return;
-  if(w.classList.contains('maximized')){
-    w.classList.remove('maximized');
-    w.style.cssText=w._prev||w.style.cssText;
-  } else {
-    w._prev=w.style.cssText;
-    w.classList.add('maximized');
-  }
-}
-
-function activateWin(win, id){
-  Object.values(openWindows).forEach(w=>w.classList.remove('active'));
-  win.classList.add('active');
-  win.style.zIndex=++zTop;
+function actWin(w,id){
+  Object.values(wins).forEach(x=>x.classList.remove('act'));
+  w.classList.add('act');w.style.zIndex=++zTop;
   const app=APPS.find(a=>a.id===id);
-  document.getElementById('wbTitle').textContent = app ? (app.icon?'':'')+app.name : '~ — hyprland';
-  win.addEventListener('mousedown',()=>activateWin(win,id),{once:false});
+  document.getElementById('bwt').textContent=app?app.name:'~ — hyprland';
+  w.addEventListener('mousedown',()=>actWin(w,id));
 }
 
-// ═══════════ DRAG ═══════════
-function makeDraggable(win, id){
-  const bar = win.querySelector('.win-bar');
-  let ox,oy,dragging=false;
+// ─── DRAG ───
+function makeDrag(win,id){
+  const bar=win.querySelector('.wbar');
+  let ox,oy,drag=false;
   bar.addEventListener('mousedown',e=>{
-    if(e.target.classList.contains('wd')) return;
-    if(win.classList.contains('maximized')) return;
-    dragging=true;
-    ox=e.clientX-win.offsetLeft;
-    oy=e.clientY-win.offsetTop;
-    activateWin(win,id);
-    document.body.style.userSelect='none';
+    if(e.target.classList.contains('wd'))return;
+    if(win.classList.contains('maxi'))return;
+    drag=true;ox=e.clientX-win.offsetLeft;oy=e.clientY-win.offsetTop;
+    actWin(win,id);document.body.style.userSelect='none';
   });
   document.addEventListener('mousemove',e=>{
-    if(!dragging) return;
-    let nx=e.clientX-ox, ny=e.clientY-oy;
-    const wsH=document.getElementById('ws-area').offsetHeight;
-    const wsW=document.getElementById('ws-area').offsetWidth;
-    nx=Math.max(0,Math.min(nx,wsW-80));
-    ny=Math.max(0,Math.min(ny,wsH-32));
-    win.style.left=nx+'px'; win.style.top=ny+'px';
+    if(!drag)return;
+    const wsa=document.getElementById('wsa');
+    let nx=e.clientX-ox,ny=e.clientY-oy;
+    nx=Math.max(0,Math.min(nx,wsa.offsetWidth-80));
+    ny=Math.max(0,Math.min(ny,wsa.offsetHeight-32));
+    win.style.left=nx+'px';win.style.top=ny+'px';
   });
-  document.addEventListener('mouseup',()=>{ dragging=false; document.body.style.userSelect=''; });
+  document.addEventListener('mouseup',()=>{drag=false;document.body.style.userSelect='';});
 }
 
-// ═══════════ RESIZE ═══════════
-function makeResizable(win){
-  const handle = win.querySelector('.win-resize');
-  let resizing=false, sx,sy,sw,sh;
-  handle.addEventListener('mousedown',e=>{
-    resizing=true; sx=e.clientX; sy=e.clientY;
-    sw=win.offsetWidth; sh=win.offsetHeight;
-    e.stopPropagation(); document.body.style.userSelect='none';
+// ─── RESIZE ───
+function makeResize(win){
+  const g=win.querySelector('.wgrip');
+  let rs=false,sx,sy,sw,sh;
+  g.addEventListener('mousedown',e=>{
+    rs=true;sx=e.clientX;sy=e.clientY;sw=win.offsetWidth;sh=win.offsetHeight;
+    e.stopPropagation();document.body.style.userSelect='none';
   });
   document.addEventListener('mousemove',e=>{
-    if(!resizing) return;
-    const nw=Math.max(280,sw+(e.clientX-sx));
-    const nh=Math.max(120,sh+(e.clientY-sy));
-    win.style.width=nw+'px'; win.style.height=nh+'px';
+    if(!rs)return;
+    win.style.width=Math.max(260,sw+(e.clientX-sx))+'px';
+    win.style.height=Math.max(100,sh+(e.clientY-sy))+'px';
   });
-  document.addEventListener('mouseup',()=>{ resizing=false; document.body.style.userSelect=''; });
+  document.addEventListener('mouseup',()=>{rs=false;document.body.style.userSelect='';});
 }
 
-// ═══════════ TASKBAR ═══════════
-function updateTaskbar(){
-  const el=document.getElementById('taskbarItems');
-  el.innerHTML='';
-  Object.entries(openWindows).forEach(([id,win])=>{
-    if(wsByApp[id]!==currentWs) return;
+// ─── DOCK ───
+function updDock(){
+  const el=document.getElementById('dktasks');el.innerHTML='';
+  Object.entries(wins).forEach(([id,w])=>{
+    if((appWs[id]||1)!==curWs)return;
     const app=APPS.find(a=>a.id===id)||{name:id,icon:'ri-window-line'};
-    const item=document.createElement('div');
-    item.className='tb-item'+(win.classList.contains('active')?' active':'');
-    item.innerHTML=`<i class="${app.icon}"></i> ${app.name}`;
-    item.onclick=()=>{
-      if(win.classList.contains('minimized')){
-        win.classList.remove('minimized'); activateWin(win,id);
-      } else if(win.classList.contains('active')){
-        minimizeWin(id);
-      } else {
-        activateWin(win,id);
-      }
-      updateTaskbar();
+    const d=document.createElement('div');
+    d.className='dk-app'+(w.classList.contains('act')?' act':'');
+    d.innerHTML=`<i class="${app.icon}"></i>${app.name}`;
+    d.onclick=()=>{
+      if(w.classList.contains('mini')){w.classList.remove('mini');actWin(w,id);}
+      else if(w.classList.contains('act')) miniWin(id);
+      else actWin(w,id);
+      updDock();
     };
-    el.appendChild(item);
+    el.appendChild(d);
   });
 }
 
-// ═══════════ CONTENT BUILDER ═══════════
-function buildContent(id){
+// ─── CONTENT ───
+function mkContent(id){
   switch(id){
-    case 'about': return `
+
+  case 'welcome': return `
 <div class="wc">
-  <div class="tag"><i class="ri-arch-linux-line"></i> Arch Linux · Hyprland · Rolling</div>
-  <h1>Anda<span class="yolk">OS</span></h1>
-  <p><strong>Arch without the pain.</strong> A pre-configured Arch base that gets out of your way. Hyprland, zero bloat, full Arch compatibility.</p>
-  <p style="font-size:11px;color:#5a4a38;font-style:italic;border-left:2px solid var(--rule);padding-left:10px;margin-bottom:16px;"><strong style="color:var(--muted)">Anda</strong> means egg in Bengali — also used to call someone charmingly stupid. This OS is both: deceptively simple, quietly capable.</p>
-  <div class="stat-row">
-    <div class="stat-box"><div class="val">~1.5G</div><div class="key">ISO Size</div></div>
-    <div class="stat-box"><div class="val">&lt;20s</div><div class="key">Boot Time</div></div>
-    <div class="stat-box"><div class="val">&lt;500M</div><div class="key">RAM Idle</div></div>
-    <div class="stat-box"><div class="val">Zero</div><div class="key">Telemetry</div></div>
+  <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--mu);margin-bottom:16px;display:flex;align-items:center;gap:7px;">
+    <i class="ri-arch-linux-line" style="color:var(--y)"></i> Arch Linux · Hyprland · Rolling
   </div>
-  <div class="btns">
-    <a href="https://github.com/hello2himel/andaos/releases" class="wc-btn p" target="_blank"><i class="ri-download-2-line"></i> Download ISO</a>
-    <a href="https://github.com/hello2himel/andaos" class="wc-btn s" target="_blank"><i class="ri-github-line"></i> GitHub</a>
+  <h1>Arch.<br><span class="inv">Without</span><br>the pain.</h1>
+  <p style="margin-top:12px">A pre-configured Arch base that gets out of your way. Hyprland, zero bloat, full Arch access. Boot. Configure. Own it.</p>
+  <p class="note"><strong>Anda</strong> means egg in Bengali — also: a charmingly stupid person. This OS is both: deceptively simple, quietly capable.</p>
+  <div class="brow">
+    <a href="https://github.com/hello2himel/andaos/releases" class="wb2 p" target="_blank"><i class="ri-download-2-line"></i> Download ISO</a>
+    <button class="wb2 s" onclick="openApp('install')"><i class="ri-terminal-line"></i> Install Guide</button>
+    <a href="https://github.com/hello2himel/andaos" class="wb2 s" target="_blank"><i class="ri-github-line"></i> Source Code</a>
   </div>
 </div>`;
 
-    case 'neofetch': return `
+  case 'about': return `
 <div class="nf">
-  <div class="nf-art">  /\\
+  <pre class="nf-art">  /\\
  /  \\
 /----\\
-/  /\\  \\
-/  /  \\  \\
-/--/----\\--\\
-       </div>
-  <div class="nf-info">
-    <span class="k">himel</span><span class="v">@andaos</span><br>
+/ /\\ \\
+/----\\
+      </pre>
+  <div class="nfi">
+    <span class="k">andaos</span><span class="v"> @ hyprland</span><br>
     <span class="v">──────────────</span><br>
-    <span class="k">OS</span><span class="v">: AndaOS (Arch) x86_64</span><br>
-    <span class="k">Kernel</span><span class="v">: 6.x.x-arch1-1</span><br>
-    <span class="k">WM</span><span class="v">: Hyprland</span><br>
-    <span class="k">Shell</span><span class="v">: zsh 5.9</span><br>
-    <span class="k">Terminal</span><span class="v">: kitty</span><br>
-    <span class="k">CPU</span><span class="v">: Intel i5 (8) @ 4.2GHz</span><br>
-    <span class="k">Memory</span><span class="v">: 487MiB / 8192MiB</span><br>
-    <span class="k">Uptime</span><span class="v">: 3 mins</span><br>
-    <div class="nf-colors">
-      <div class="nf-color" style="background:#1a1510"></div>
-      <div class="nf-color" style="background:#e05c50"></div>
-      <div class="nf-color" style="background:#f5c842"></div>
-      <div class="nf-color" style="background:#7ec86e"></div>
-      <div class="nf-color" style="background:#6eb4c8"></div>
-      <div class="nf-color" style="background:#a89880"></div>
-      <div class="nf-color" style="background:#f5ede0"></div>
-      <div class="nf-color" style="background:#ffffff"></div>
+    <span class="k">OS</span><span class="v"> AndaOS (Arch) x86_64</span><br>
+    <span class="k">WM</span><span class="v"> Hyprland</span><br>
+    <span class="k">Bar</span><span class="v"> Waybar</span><br>
+    <span class="k">Shell</span><span class="v"> zsh 5.9</span><br>
+    <span class="k">Terminal</span><span class="v"> kitty</span><br>
+    <span class="k">ISO</span><span class="v"> ~1.5 GB</span><br>
+    <span class="k">Boot</span><span class="v"> &lt;20s on SSD</span><br>
+    <span class="k">RAM idle</span><span class="v"> &lt;500 MB</span><br>
+    <span class="k">Telemetry</span><span class="v"> none</span><br>
+    <div class="nfc">
+      <div class="nfcb" style="background:#1a1510"></div>
+      <div class="nfcb" style="background:#e05c50"></div>
+      <div class="nfcb" style="background:#f5c842"></div>
+      <div class="nfcb" style="background:#7ec86e"></div>
+      <div class="nfcb" style="background:#6eb4c8"></div>
+      <div class="nfcb" style="background:#a89880"></div>
+      <div class="nfcb" style="background:#f5ede0"></div>
     </div>
   </div>
-</div>`;
-
-    case 'features': return `
-<div class="wc">
-  <h2>What Ships</h2>
-  <div class="wc-label">Included</div>
-  <ul class="feat-list">
+</div>
+<div style="padding:0 18px 16px">
+  <div class="sg">
+    <div class="sb"><div class="v">~1.5G</div><div class="k">ISO</div></div>
+    <div class="sb"><div class="v">&lt;20s</div><div class="k">Boot</div></div>
+    <div class="sb"><div class="v">&lt;500M</div><div class="k">RAM</div></div>
+    <div class="sb"><div class="v">Zero</div><div class="k">Telemetry</div></div>
+  </div>
+  <ul class="fl" style="margin-top:10px">
     <li><i class="ri-check-line"></i>Hyprland + Waybar, pre-configured</li>
-    <li><i class="ri-check-line"></i>Firefox with privacy defaults</li>
-    <li><i class="ri-check-line"></i>PipeWire + Wireplumber audio</li>
-    <li><i class="ri-check-line"></i>NetworkManager + applet</li>
+    <li><i class="ri-check-line"></i>Firefox, PipeWire, NetworkManager</li>
     <li><i class="ri-check-line"></i>nano, vim, git, htop, btop, zsh</li>
     <li><i class="ri-check-line"></i>Full firmware & hardware support</li>
-    <li><i class="ri-check-line"></i>Bluetooth with GUI controls</li>
-    <li><i class="ri-check-line"></i>Archive support (zip, tar, 7z, zst)</li>
-  </ul>
-  <div class="wc-divider"></div>
-  <div class="wc-label">Not included</div>
-  <ul class="feat-list">
-    <li><i class="ri-close-line x"></i>Office suites — install if needed</li>
-    <li><i class="ri-close-line x"></i>Dev environments — add your stack</li>
-    <li><i class="ri-close-line x"></i>Gaming platforms — AUR has them</li>
-    <li><i class="ri-close-line x"></i>Telemetry of any kind</li>
-    <li><i class="ri-close-line x"></i>Mystery background services</li>
+    <li><i class="ri-close-line x"></i>No telemetry, no mystery services</li>
   </ul>
 </div>`;
 
-    case 'philosophy': return `
-<div class="wc">
-  <h2>Philosophy</h2>
-  <p style="margin-bottom:18px">Every package earns its place. If it's not essential — removed. If optional — made optional. If configurable — made transparent.</p>
-  <div class="p-tiles">
-    <div class="p-tile"><div class="p-tile-n">01</div><div class="p-tile-t">Boot and work</div><p class="p-tile-d">Hyprland configured with sensible defaults. No dotfile archaeology.</p></div>
-    <div class="p-tile"><div class="p-tile-n">02</div><div class="p-tile-t">Nothing hidden</div><p class="p-tile-d">Every package documented. You know exactly what's running.</p></div>
-    <div class="p-tile"><div class="p-tile-n">03</div><div class="p-tile-t">Full Arch access</div><p class="p-tile-d">Official repos, AUR, Arch wiki. Pure Arch underneath.</p></div>
-    <div class="p-tile"><div class="p-tile-n">04</div><div class="p-tile-t">You own it</div><p class="p-tile-d">No forced updates. Your machine, your rules.</p></div>
-    <div class="p-tile"><div class="p-tile-n">05</div><div class="p-tile-t">Reproducible</div><p class="p-tile-d">Build identical ISOs with standard ArchISO tooling.</p></div>
-    <div class="p-tile"><div class="p-tile-n">06</div><div class="p-tile-t">No bloat</div><p class="p-tile-d">Fast boot, low RAM — by refusing to add unnecessary things.</p></div>
+  case 'terminal': return `
+<div class="term" id="term-shell">
+  <div class="term-out" id="tout">
+    <div class="term-line dim">AndaOS terminal — type <span style="color:var(--y)">help</span> for commands</div>
+    <div class="term-line dim">──────────────────────────────────────</div>
+  </div>
+  <div class="term-input-row">
+    <span class="term-ps">[andaos ~]$</span>
+    <input class="term-in" id="tin" onkeydown="termKey(event)" autocomplete="off" autocorrect="off" spellcheck="false" autofocus>
   </div>
 </div>`;
 
-    case 'install': return `
-<div class="wc" style="padding:16px 18px">
-  <h2>Install</h2>
-  <div class="i-step">
-    <div class="i-step-hd">
-      <div class="i-step-ico"><i class="ri-usb-line"></i></div>
-      <div class="i-step-title">Write to USB</div>
-      <div class="i-step-sub">Step 01 · ~2 min</div>
-    </div>
-    <div class="i-step-body">
-      <p class="i-desc">Flash the ISO with dd on Linux/macOS, or Rufus on Windows.</p>
-      <div class="code-wrap">
-        <div class="code-hd"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div><button class="cp-btn" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
-        <div class="code-body"><span class="cc"># Linux / macOS</span>
+  case 'install': return `
+<div class="wc" style="padding:14px 16px">
+  <h2>Install AndaOS</h2>
+  <div class="ist">
+    <div class="isth"><div class="istic"><i class="ri-usb-line"></i></div><div class="istt">Write to USB</div><div class="ists">Step 01 · ~2 min</div></div>
+    <div class="istb">
+      <p class="isd">Flash the ISO with <code style="background:var(--s2);padding:1px 4px;border-radius:2px;font-size:10px">dd</code> on Linux/macOS, or Rufus on Windows.</p>
+      <div class="cw">
+        <div class="chd"><div class="cdots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div><button class="cpb" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
+        <div class="cb2"><span class="cc"># Linux / macOS</span>
 <span class="cm">sudo dd bs=4M if=andaos-*.iso of=/dev/sdX \\
      status=progress oflag=sync</span>
 <span class="cc"># Verify</span>
@@ -906,86 +1119,61 @@ function buildContent(id){
       </div>
     </div>
   </div>
-  <div class="i-step">
-    <div class="i-step-hd">
-      <div class="i-step-ico"><i class="ri-restart-line"></i></div>
-      <div class="i-step-title">Boot from USB</div>
-      <div class="i-step-sub">Step 02 · ~1 min</div>
-    </div>
-    <div class="i-step-body">
-      <div class="i-note"><i class="ri-information-line"></i><span>Boot menu: <strong>F12 / F11 / Del</strong>. Disable Secure Boot if needed. Live Hyprland loads — no password.</span></div>
+  <div class="ist">
+    <div class="isth"><div class="istic"><i class="ri-restart-line"></i></div><div class="istt">Boot from USB</div><div class="ists">Step 02 · ~1 min</div></div>
+    <div class="istb">
+      <div class="inote"><i class="ri-information-line"></i><span>Boot menu: <strong>F12 / F11 / Del</strong>. Disable Secure Boot if needed. Live Hyprland loads — no password.</span></div>
     </div>
   </div>
-  <div class="i-step">
-    <div class="i-step-hd">
-      <div class="i-step-ico"><i class="ri-hard-drive-2-line"></i></div>
-      <div class="i-step-title">Install to disk</div>
-      <div class="i-step-sub">Step 03 · ~10 min</div>
-    </div>
-    <div class="i-step-body">
-      <div class="code-wrap">
-        <div class="code-hd"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div><button class="cp-btn" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
-        <div class="code-body"><span class="cc"># Partition + format + mount</span>
+  <div class="ist">
+    <div class="isth"><div class="istic"><i class="ri-hard-drive-2-line"></i></div><div class="istt">Install to disk</div><div class="ists">Step 03 · ~10 min</div></div>
+    <div class="istb">
+      <div class="cw">
+        <div class="chd"><div class="cdots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div><button class="cpb" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
+        <div class="cb2"><span class="cc"># Partition</span>
 <span class="cm">cfdisk /dev/sda</span>
+<span class="cc"># Format + mount</span>
 <span class="cm">mkfs.ext4 /dev/sda1 && mount /dev/sda1 /mnt</span>
 <span class="cc"># Install base</span>
 <span class="cm">pacstrap /mnt base linux hyprland networkmanager</span>
 <span class="cm">genfstab -U /mnt >> /mnt/etc/fstab</span>
 <span class="cm">arch-chroot /mnt</span></div>
       </div>
-      <div class="i-note" style="margin-top:8px"><i class="ri-book-open-line"></i><span><a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank">Arch installation guide</a> covers every detail.</span></div>
+      <div class="inote" style="margin-top:8px"><i class="ri-book-open-line"></i><span><a href="https://wiki.archlinux.org/title/Installation_guide" target="_blank">Arch installation guide</a> — every step in detail.</span></div>
     </div>
   </div>
 </div>`;
 
-    case 'docs': return `
+  case 'docs': return `
 <div class="wc">
-  <h2>Documentation</h2>
-  <div class="doc-grid">
-    <a href="https://wiki.archlinux.org/title/Installation_guide" class="doc-item" target="_blank"><i class="ri-book-open-line"></i><strong>Installation Guide</strong><span>Full Arch install procedure</span></a>
-    <a href="https://github.com/hello2himel/andaos#building-from-source" class="doc-item" target="_blank"><i class="ri-hammer-line"></i><strong>Build from Source</strong><span>Create your own custom ISO</span></a>
-    <a href="https://wiki.archlinux.org" class="doc-item" target="_blank"><i class="ri-earth-line"></i><strong>Arch Wiki</strong><span>Most comprehensive Linux docs</span></a>
-    <a href="https://github.com/hello2himel/andaos" class="doc-item" target="_blank"><i class="ri-github-line"></i><strong>GitHub</strong><span>Source, issues, discussions</span></a>
-    <a href="https://github.com/hello2himel/andaos/releases" class="doc-item" target="_blank"><i class="ri-download-2-line"></i><strong>Releases</strong><span>Download latest ISO</span></a>
-    <a href="https://wiki.hyprland.org" class="doc-item" target="_blank"><i class="ri-layout-2-line"></i><strong>Hyprland Wiki</strong><span>WM configuration reference</span></a>
+  <h2>Docs & Links</h2>
+  <div class="dg">
+    <a href="https://wiki.archlinux.org/title/Installation_guide" class="di" target="_blank"><i class="ri-book-open-line"></i><strong>Installation Guide</strong><span>Full Arch install</span></a>
+    <a href="https://wiki.hyprland.org" class="di" target="_blank"><i class="ri-layout-2-line"></i><strong>Hyprland Wiki</strong><span>WM config reference</span></a>
+    <a href="https://wiki.archlinux.org" class="di" target="_blank"><i class="ri-earth-line"></i><strong>Arch Wiki</strong><span>Best Linux docs</span></a>
+    <a href="https://github.com/hello2himel/andaos" class="di" target="_blank"><i class="ri-github-line"></i><strong>Source Code</strong><span>Fork, issue, PR</span></a>
+    <a href="https://github.com/hello2himel/andaos/releases" class="di" target="_blank"><i class="ri-download-2-line"></i><strong>Releases</strong><span>Download ISO</span></a>
+    <a href="https://github.com/hello2himel/andaos/discussions" class="di" target="_blank"><i class="ri-discuss-line"></i><strong>Discussions</strong><span>Community Q&A</span></a>
   </div>
-  <div class="wc-divider"></div>
-  <div class="wc-label">Build your own</div>
-  <div class="code-wrap">
-    <div class="code-hd"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div><button class="cp-btn" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
-    <div class="code-body"><span class="cm">git clone https://github.com/hello2himel/andaos.git</span>
+  <div class="div"></div>
+  <div class="lbl">Build your own</div>
+  <div class="cw">
+    <div class="chd"><div class="cdots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div><button class="cpb" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
+    <div class="cb2"><span class="cm">git clone https://github.com/hello2himel/andaos.git</span>
 <span class="cm">cd andaos && ./build.sh</span>
-<span class="cc"># test</span>
+<span class="cc"># test in QEMU</span>
 <span class="cm">qemu-system-x86_64 -enable-kvm -m 4096 \\
   -boot d -cdrom out/andaos-*.iso</span></div>
   </div>
+  <p style="font-size:10px;color:#5a4a38;margin-top:8px">Edit <code style="background:var(--s2);padding:1px 4px;border-radius:2px">packages.x86_64</code> · <code style="background:var(--s2);padding:1px 4px;border-radius:2px">airootfs/etc/skel/</code> · <code style="background:var(--s2);padding:1px 4px;border-radius:2px">os-release</code></p>
 </div>`;
 
-    case 'hardware': return `
-<div class="wc">
-  <h2>Requirements</h2>
-  <table class="req-table">
-    <tr><th></th><th>Minimum</th><th>Recommended</th></tr>
-    <tr><td>CPU</td><td>x86_64</td><td>Dual-core+</td></tr>
-    <tr><td>RAM</td><td>2 GB</td><td>4 GB</td></tr>
-    <tr><td>Disk</td><td>10 GB</td><td>20 GB SSD</td></tr>
-    <tr><td>Firmware</td><td>BIOS / UEFI</td><td>UEFI (SB off)</td></tr>
-  </table>
-  <div class="wc-divider"></div>
-  <div class="wc-label">Tested GPUs</div>
-  <ul class="feat-list">
-    <li><i class="ri-check-line"></i>Intel integrated graphics</li>
-    <li><i class="ri-check-line"></i>AMD Radeon</li>
-    <li><i class="ri-check-line"></i>NVIDIA (nouveau + proprietary)</li>
-  </ul>
-</div>`;
-
-    case 'settings': return `
+  case 'settings': return `
 <div class="wc">
   <h2>hyprland.conf</h2>
-  <div class="code-wrap">
-    <div class="code-hd"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div><button class="cp-btn" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
-    <div class="code-body"><span class="cc"># AndaOS Hyprland config</span>
+  <div class="cw">
+    <div class="chd"><div class="cdots"><div class="cdot"></div><div class="cdot"></div><div class="cdot"></div></div><button class="cpb" onclick="cpCode(this)"><i class="ri-file-copy-line"></i></button></div>
+    <div class="cb2"><span class="cc"># AndaOS Hyprland configuration</span>
 <span class="cm">monitor=,preferred,auto,1</span>
 
 <span class="cc"># Look & feel</span>
@@ -1008,148 +1196,251 @@ function buildContent(id){
 <span class="cm">animations {
   enabled = true
   bezier = overshot, 0.05, 0.9, 0.1, 1.1
-  animation = windows, 1, 5, overshot
+  animation = windows, 1, 5, overshot, slide
   animation = workspaces, 1, 4, default
 }</span>
 
 <span class="cc"># Keybinds</span>
-<span class="cm">bind = SUPER, D, exec, wofi --show drun
-bind = SUPER, Q, killactive
-bind = SUPER, F, fullscreen
-bind = SUPER SHIFT, Q, exit</span></div>
+<span class="cm">$mod = SUPER
+bind = $mod, D, exec, wofi --show drun
+bind = $mod, Q, killactive
+bind = $mod, F, fullscreen
+bind = $mod, 1, workspace, 1
+bind = $mod, 2, workspace, 2
+bind = $mod, 3, workspace, 3</span>
+
+<span class="cc"># Autostart</span>
+<span class="cm">exec-once = waybar
+exec-once = nm-applet
+exec-once = pipewire</span></div>
   </div>
 </div>`;
 
-    default: return `<div class="wc"><p>No content.</p></div>`;
+  default:return`<div class="wc"><p>No content.</p></div>`;
   }
 }
 
-// ═══════════ ROFI ═══════════
-function buildRofi(){
-  const list=document.getElementById('rofiList');
-  list.innerHTML='';
-  ROFI_APPS.forEach((app,i)=>{
-    const li=document.createElement('li');
-    li.className='rofi-item'+(i===0?' sel':'');
-    li.dataset.idx=i;
-    li.innerHTML=`<i class="${app.icon}"></i><span class="app-name">${app.name}</span>`;
-    li.addEventListener('click',()=>{ closeRofi(); app.action(); });
-    list.appendChild(li);
-  });
-}
+// ═══════════════════════════════════════
+// TERMINAL
+// ═══════════════════════════════════════
+let termHistory=[],termHi=-1;
 
-let rofiOpen=false;
-function toggleRofi(){
-  rofiOpen=!rofiOpen;
-  const el=document.getElementById('rofi');
-  el.classList.toggle('open',rofiOpen);
-  if(rofiOpen){
-    document.getElementById('rofi-input').value='';
-    filterRofi();
-    setTimeout(()=>document.getElementById('rofi-input').focus(),50);
-  }
-}
-function closeRofi(){rofiOpen=false;document.getElementById('rofi').classList.remove('open');}
-
-function filterRofi(){
-  const q=document.getElementById('rofi-input').value.toLowerCase();
-  const items=document.querySelectorAll('.rofi-item');
-  let first=null;
-  items.forEach(item=>{
-    const name=item.querySelector('.app-name').textContent.toLowerCase();
-    const show=name.includes(q);
-    item.style.display=show?'flex':'none';
-    item.classList.remove('sel');
-    if(show&&!first){first=item;}
-  });
-  if(first) first.classList.add('sel');
-}
-
-function rofiKey(e){
-  if(e.key==='Escape'){closeRofi();return;}
+function termKey(e){
+  const inp=document.getElementById('tin');
+  if(!inp)return;
   if(e.key==='Enter'){
-    const sel=document.querySelector('.rofi-item.sel');
-    if(sel) sel.click();
-    return;
+    const cmd=inp.value.trim();
+    if(cmd){ termHistory.unshift(cmd);termHi=-1; }
+    inp.value='';
+    runCmd(cmd);
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    if(termHi<termHistory.length-1){ termHi++;inp.value=termHistory[termHi];}
+  } else if(e.key==='ArrowDown'){
+    e.preventDefault();
+    if(termHi>0){ termHi--;inp.value=termHistory[termHi];}
+    else{termHi=-1;inp.value='';}
   }
-  const items=[...document.querySelectorAll('.rofi-item:not([style*="none"])')];
-  if(!items.length) return;
-  let idx=items.findIndex(i=>i.classList.contains('sel'));
-  items.forEach(i=>i.classList.remove('sel'));
-  if(e.key==='ArrowDown') idx=Math.min(idx+1,items.length-1);
-  if(e.key==='ArrowUp') idx=Math.max(idx-1,0);
-  if(idx>=0) items[idx].classList.add('sel');
 }
 
-// close rofi on outside click
-document.addEventListener('click',e=>{
-  if(rofiOpen && !document.getElementById('rofi').contains(e.target)&&
-     !e.target.closest('.wb-btn')&&e.target.className!=='wb-logo'){
-    closeRofi();
+function tout(text,cls=''){
+  const el=document.getElementById('tout');if(!el)return;
+  const d=document.createElement('div');
+  d.className='term-line'+(cls?' '+cls:'');
+  d.innerHTML=text;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+
+function runCmd(raw){
+  const cmd=raw.toLowerCase().trim();
+  tout('[andaos ~]$ '+raw,'cmd');
+  if(!cmd)return;
+  switch(cmd){
+    case 'help':
+      tout('Available commands:','head');
+      tout('  <span style="color:var(--y)">help</span>       — show this message');
+      tout('  <span style="color:var(--y)">neofetch</span>   — system info');
+      tout('  <span style="color:var(--y)">pacman -Syu</span> — simulate update');
+      tout('  <span style="color:var(--y)">clear</span>      — clear terminal');
+      tout('  <span style="color:var(--y)">about</span>      — open About window');
+      tout('  <span style="color:var(--y)">install</span>    — open Install guide');
+      tout('  <span style="color:var(--y)">docs</span>       — open Docs window');
+      tout('  <span style="color:var(--y)">uptime</span>     — show uptime');
+      tout('  <span style="color:var(--y)">whoami</span>     — current user');
+      tout('  <span style="color:var(--y)">uname -a</span>   — kernel info');
+      tout('  <span style="color:var(--y)">ls</span>         — list home dir');
+      tout('  <span style="color:var(--y)">cat /etc/os-release</span> — OS info');
+      break;
+    case 'neofetch':
+      tout('<span style="color:var(--y)">andaos</span><span style="color:var(--mu)">@hyprland</span>','head');
+      tout('<span style="color:var(--y)">OS</span>      <span style="color:var(--mu)">AndaOS (Arch Linux) x86_64</span>');
+      tout('<span style="color:var(--y)">WM</span>      <span style="color:var(--mu)">Hyprland</span>');
+      tout('<span style="color:var(--y)">Shell</span>   <span style="color:var(--mu)">zsh 5.9</span>');
+      tout('<span style="color:var(--y)">RAM</span>     <span style="color:var(--mu)">487 MiB / 8192 MiB</span>');
+      tout('<span style="color:var(--y)">Boot</span>    <span style="color:var(--mu)">&lt;20s (SSD)</span>');
+      tout('<span style="color:var(--y)">Uptime</span>  <span style="color:var(--mu)">3 mins</span>');
+      break;
+    case 'clear':
+      const el=document.getElementById('tout');
+      if(el) el.innerHTML='';break;
+    case 'uptime':
+      tout('up 3 minutes, 1 user, load average: 0.08, 0.12, 0.05');break;
+    case 'whoami':
+      tout('himel');break;
+    case 'uname -a':
+      tout('Linux andaos 6.12.1-arch1-1 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux');break;
+    case 'ls':
+      tout('<span style="color:var(--y)">Desktop</span>  <span style="color:var(--y)">Documents</span>  <span style="color:var(--y)">Downloads</span>  <span style="color:var(--y)">Music</span>  <span style="color:var(--y)">Pictures</span>  <span style="color:var(--y)">Videos</span>');break;
+    case 'cat /etc/os-release':
+      tout('NAME="AndaOS"');
+      tout('VERSION="2025.1 (Rolling)"');
+      tout('ID=arch');
+      tout('ID_LIKE=arch');
+      tout('PRETTY_NAME="AndaOS (Arch Linux)"');
+      tout('HOME_URL="https://github.com/hello2himel/andaos"');
+      break;
+    case 'pacman -syu':
+      tout(':: Synchronizing package databases...','ok');
+      setTimeout(()=>tout(' core           153.0 KiB'),200);
+      setTimeout(()=>tout(' extra          8.3 MiB'),400);
+      setTimeout(()=>tout(':: Starting full system upgrade...','ok'),600);
+      setTimeout(()=>tout(' there is nothing to do','ok'),800);
+      break;
+    case 'about':
+      openApp('about');tout('Opening About window...','ok');break;
+    case 'install':
+      openApp('install');tout('Opening Install guide...','ok');break;
+    case 'docs':
+      openApp('docs');tout('Opening Docs window...','ok');break;
+    default:
+      tout('bash: '+raw+': command not found','err');
+      tout('Type <span style="color:var(--y)">help</span> for available commands','dim');
   }
+}
+
+// ═══════════════════════════════════════
+// ROFI
+// ═══════════════════════════════════════
+function buildRofi(){
+  const ul=document.getElementById('rul');if(!ul)return;
+  ul.innerHTML='';
+  ROFI_APPS.forEach((a,i)=>{
+    const li=document.createElement('li');
+    li.className='rofi-li'+(i===0?' sel':'');
+    li.innerHTML=`<i class="${a.icon}"></i><span>${a.name}</span>`;
+    li.onclick=()=>{
+      closeRofi();
+      if(a.id) openApp(a.id);
+      else if(a.url) window.open(a.url,'_blank');
+    };
+    ul.appendChild(li);
+  });
+}
+
+let rofiOn=false;
+function toggleRofi(){
+  rofiOn=!rofiOn;
+  const el=document.getElementById('rofi');
+  el.classList.toggle('on',rofiOn);
+  if(rofiOn){
+    document.getElementById('ri').value='';
+    frofi();
+    setTimeout(()=>document.getElementById('ri').focus(),40);
+  }
+}
+function closeRofi(){rofiOn=false;document.getElementById('rofi').classList.remove('on');}
+
+function frofi(){
+  const q=document.getElementById('ri').value.toLowerCase();
+  const items=document.querySelectorAll('.rofi-li');
+  let first=null;
+  items.forEach(li=>{
+    const show=li.querySelector('span').textContent.toLowerCase().includes(q);
+    li.style.display=show?'flex':'none';
+    li.classList.remove('sel');
+    if(show&&!first)first=li;
+  });
+  if(first)first.classList.add('sel');
+}
+
+function krofi(e){
+  if(e.key==='Escape'){closeRofi();return;}
+  if(e.key==='Enter'){const s=document.querySelector('.rofi-li.sel');if(s)s.click();return;}
+  const vis=[...document.querySelectorAll('.rofi-li:not([style*="none"])')];
+  if(!vis.length)return;
+  let i=vis.findIndex(x=>x.classList.contains('sel'));
+  vis.forEach(x=>x.classList.remove('sel'));
+  if(e.key==='ArrowDown') i=Math.min(i+1,vis.length-1);
+  if(e.key==='ArrowUp') i=Math.max(i-1,0);
+  if(i>=0)vis[i].classList.add('sel');
+}
+
+document.addEventListener('click',e=>{
+  if(rofiOn&&!document.getElementById('rofi').contains(e.target)&&!e.target.closest('.bar-btn')&&e.target.className!=='bar-logo')closeRofi();
+  document.getElementById('ctx').classList.remove('on');
 });
 
-// ═══════════ CONTEXT MENU ═══════════
+// ═══════════════════════════════════════
+// CONTEXT MENU
+// ═══════════════════════════════════════
 function showCtx(e){
   e.preventDefault();
-  const ctx=document.getElementById('ctx');
-  ctx.style.left=e.clientX+'px';
-  ctx.style.top=e.clientY+'px';
-  ctx.classList.add('open');
+  const c=document.getElementById('ctx');
+  c.style.left=Math.min(e.clientX,window.innerWidth-160)+'px';
+  c.style.top=Math.min(e.clientY,window.innerHeight-160)+'px';
+  c.classList.add('on');
 }
-document.addEventListener('click',()=>document.getElementById('ctx').classList.remove('open'));
+function ca(id){closeRofi();openApp(id);document.getElementById('ctx').classList.remove('on');}
 
-function ctxAction(a){
-  if(a==='terminal') openApp('install');
-  else if(a==='files') openApp('docs');
-  else if(a==='about') openApp('about');
-  else if(a==='settings') openApp('settings');
-  else if(a==='reload') notify('Hyprland','Reloading configuration...');
-  document.getElementById('ctx').classList.remove('open');
+// ═══════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════
+let darkMode=true;
+function toggleTheme(){
+  darkMode=!darkMode;
+  const desk=document.getElementById('desk');
+  const ico=document.getElementById('thico');
+  desk.setAttribute('data-theme',darkMode?'dark':'light');
+  ico.className=darkMode?'ri-sun-line':'ri-moon-line';
+  document.querySelector(':root').setAttribute('data-theme',darkMode?'dark':'light');
+  // also update CSS vars via attribute
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'light');
 }
 
-// ═══════════ COPY ═══════════
+// ═══════════════════════════════════════
+// COPY
+// ═══════════════════════════════════════
 function cpCode(btn){
-  const code=btn.closest('.code-wrap').querySelector('.code-body');
+  const code=btn.closest('.cw').querySelector('.cb2');
   navigator.clipboard.writeText(code.innerText).then(()=>{
-    const i=btn.querySelector('i');
-    i.className='ri-check-line';
-    btn.classList.add('done');
-    setTimeout(()=>{i.className='ri-file-copy-line';btn.classList.remove('done');},2000);
+    const i=btn.querySelector('i');i.className='ri-check-line';btn.classList.add('dn');
+    setTimeout(()=>{i.className='ri-file-copy-line';btn.classList.remove('dn');},2000);
   });
 }
 
-// ═══════════ CLOCK ═══════════
-function updateClock(){
-  const now=new Date();
-  const h=String(now.getHours()).padStart(2,'0');
-  const m=String(now.getMinutes()).padStart(2,'0');
-  const el=document.getElementById('clock');
-  if(el) el.textContent=h+':'+m;
-}
-
-// ═══════════ FAKE METRICS ═══════════
-function fakeMetrics(){
-  setInterval(()=>{
-    const v=Math.floor(Math.random()*8+1);
-    const el=document.getElementById('cpuVal');
-    if(el) el.textContent=v+'%';
-  },3000);
-}
-
-// ═══════════ NOTIFICATIONS ═══════════
+// ═══════════════════════════════════════
+// NOTIFICATION
+// ═══════════════════════════════════════
 function notify(title,body){
-  document.getElementById('notifTitle').textContent=title;
-  document.getElementById('notifBody').textContent=body;
+  document.getElementById('ntit').textContent=title;
+  document.getElementById('nbdy').textContent=body;
   const n=document.getElementById('notif');
-  n.classList.add('show');
-  setTimeout(()=>n.classList.remove('show'),4000);
+  n.classList.add('on');
+  setTimeout(()=>n.classList.remove('on'),4500);
 }
 
-// Keyboard shortcuts
+// ═══════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ closeRofi(); document.getElementById('ctx').classList.remove('open'); }
-  if((e.metaKey||e.ctrlKey)&&e.key==='d'){ e.preventDefault(); toggleRofi(); }
+  if(e.key==='Escape'){closeRofi();document.getElementById('ctx').classList.remove('on');}
+  if((e.ctrlKey||e.metaKey)&&e.key==='d'){e.preventDefault();toggleRofi();}
+});
+
+// focus terminal input when terminal window is clicked
+document.addEventListener('click',e=>{
+  const tin=document.getElementById('tin');
+  if(tin&&e.target.closest('#w-terminal')) setTimeout(()=>tin.focus(),20);
 });
 </script>
 </body>
